@@ -1,0 +1,67 @@
+<!--
+    Climate Science Client: an Angular web app for querying a climate science database via a REST service.
+    Copyright © 2023 Adrian Price. All rights reserved.
+    Licensed under the GNU Affero General Public License v.3 https://www.gnu.org/licenses/agpl-3.0.html
+-->
+<div class="mat-elevation-z8 container">
+
+    <div class="spinner-container" *ngIf="dataSource.loading$ | async">
+        <mat-spinner></mat-spinner>
+    </div>
+
+    <mat-table [dataSource]="dataSource" style="height: 300px; overflow-y: auto;">
+        <ng-container matColumnDef="SELECTED">
+            <mat-header-cell *matHeaderCellDef> Select </mat-header-cell>
+            <mat-cell *matCellDef="let person">
+                <mat-checkbox (click)="$event.stopPropagation()"
+                              (change)="$event ? selectionModel.toggle(person) : null"
+                              [checked]="selectionModel.isSelected(person)"></mat-checkbox>
+            </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="TITLE">
+            <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
+            <mat-cell *matCellDef="let person"> {{person.TITLE}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="FIRST_NAME">
+            <mat-header-cell *matHeaderCellDef> First Name </mat-header-cell>
+            <mat-cell *matCellDef="let person"> {{person.FIRST_NAME}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="LAST_NAME">
+            <mat-header-cell *matHeaderCellDef> Last Name </mat-header-cell>
+            <mat-cell *matCellDef="let person"> {{person.PREFIX}} {{person.LAST_NAME}} {{person.SUFFIX}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="COUNTRY">
+            <mat-header-cell *matHeaderCellDef> Country </mat-header-cell>
+            <mat-cell *matCellDef="let person"> {{person.COUNTRY}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="RATING">
+            <mat-header-cell *matHeaderCellDef> Rating </mat-header-cell>
+            <mat-cell *matCellDef="let person">
+                <ngb-rating [max]="5" [rate]="person.RATING" [readonly]="true">
+                    <!--TODO: get custom template working, to make active stars more prominent-->
+                    <!--<ng-template let-fill="fill" let-index="index">
+                        <i class="bi-star{{fill === 100 ? '-fill' : ''}}" [class.filled]="fill === 100" [class.low]="index < 3"></i>
+                    </ng-template>-->
+                </ngb-rating>
+            </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="PUBLISHED">
+            <mat-header-cell *matHeaderCellDef> Published </mat-header-cell>
+            <mat-cell *matCellDef="let person"> <mat-checkbox disabled [checked]="person.PUBLISHED == 1"></mat-checkbox> </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let person; columns: displayedColumns;" (click)="onSelectRow(person, $event)" [class.selected]="person === selection"></mat-row>
+    </mat-table>
+
+    <mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 20, 50, 100]"
+        showFirstLastButtons
+        aria-label="Select page">
+    </mat-paginator>
+</div>

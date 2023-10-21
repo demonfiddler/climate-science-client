@@ -1,0 +1,15 @@
+<!--
+    Climate Science Client: an Angular web app for querying a climate science database via a REST service.
+    Copyright © 2023 Adrian Price. All rights reserved.
+    Licensed under the GNU Affero General Public License v.3 https://www.gnu.org/licenses/agpl-3.0.html
+-->
+<div *ngIf="quotation; else elseBlock" class="detail">
+    <h2>{{quotation.AUTHOR}}</h2>
+    <label>ID:</label><div class="value">{{quotation.ID}}</div>
+    <label>Quote</label><div class="value">{{quotation.TEXT}}</div>
+    <label>Date:</label><div class="value">{{quotation.DATE}}</div>
+    <label>Source:</label><div class="value">{{quotation.SOURCE}}</div>
+    <label>URL:</label><div class="value"><a href="{{quotation.URL}}" target="_blank">{{quotation.URL}}</a></div>
+    <label *ngIf="master == 'PERSONS'">Linked:</label><div *ngIf="master == 'PERSONS'" class="value"><mat-checkbox #linked [checked]="quotation.LINKED == 1" (click)="toggle()"></mat-checkbox></div>
+</div>
+<ng-template #elseBlock>Select a quotation to see its details</ng-template>

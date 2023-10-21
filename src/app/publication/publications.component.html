@@ -1,0 +1,55 @@
+<!--
+    Climate Science Client: an Angular web app for querying a climate science database via a REST service.
+    Copyright © 2023 Adrian Price. All rights reserved.
+    Licensed under the GNU Affero General Public License v.3 https://www.gnu.org/licenses/agpl-3.0.html
+-->
+<div class="mat-elevation-z8 container">
+
+    <div class="spinner-container" *ngIf="dataSource.loading$ | async">
+        <mat-spinner></mat-spinner>
+    </div>
+
+    <mat-table [dataSource]="dataSource" style="height: 300px; overflow-y: auto;">
+        <ng-container matColumnDef="SELECTED">
+            <mat-header-cell *matHeaderCellDef> Select </mat-header-cell>
+            <mat-cell *matCellDef="let publication">
+                <mat-checkbox (click)="$event.stopPropagation()"
+                              (change)="$event ? selectionModel.toggle(publication) : null"
+                              [checked]="selectionModel.isSelected(publication)"></mat-checkbox>
+            </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="TITLE">
+            <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
+            <mat-cell *matCellDef="let publication"> {{publication.TITLE}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="JOURNAL">
+            <mat-header-cell *matHeaderCellDef> Journal </mat-header-cell>
+            <mat-cell *matCellDef="let publication"> {{publication.JOURNAL}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="PUBLICATION_TYPE_ID">
+            <mat-header-cell *matHeaderCellDef> Type </mat-header-cell>
+            <mat-cell *matCellDef="let publication"> {{publication.PUBLICATION_TYPE_ID}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="PUBLICATION_YEAR">
+            <mat-header-cell *matHeaderCellDef> YEAR </mat-header-cell>
+            <mat-cell *matCellDef="let publication"> {{publication.PUBLICATION_YEAR}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="PEER_REVIEWED">
+            <mat-header-cell *matHeaderCellDef> Peer Reviewed </mat-header-cell>
+            <mat-cell *matCellDef="let publication"> <mat-checkbox disabled [checked]="publication.PEER_REVIEWED == 1"></mat-checkbox> </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let publication; columns: displayedColumns;" (click)="onSelectRow(publication, $event)" [class.selected]="publication === selection"></mat-row>
+    </mat-table>
+
+    <mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 20, 50, 100]"
+        showFirstLastButtons
+        aria-label="Select page">
+    </mat-paginator>
+</div>

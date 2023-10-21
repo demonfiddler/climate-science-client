@@ -1,0 +1,19 @@
+<!--
+    Climate Science Client: an Angular web app for querying a climate science database via a REST service.
+    Copyright © 2023 Adrian Price. All rights reserved.
+    Licensed under the GNU Affero General Public License v.3 https://www.gnu.org/licenses/agpl-3.0.html
+-->
+<div *ngIf="declaration; else elseBlock" class="detail">
+    <h2>{{declaration.TITLE}}</h2>
+    <label>ID:</label><div class="value">{{declaration.ID}}</div>
+    <label>Date:</label><div class="value">{{declaration.DATE}}</div>
+    <label>Type:</label><div class="value">{{declaration.TYPE}}</div>
+    <label>Country:</label><div class="value">{{declaration.COUNTRY}}</div>
+    <label>URL:</label><div class="value"><a href="{{declaration.URL}}" target="_blank">{{declaration.URL}}</a></div>
+    <label>Signatory count:</label><div class="value">{{declaration.SIGNATORY_COUNT}}</div>
+    <label>Signatories:</label><div class="scrollable value">{{declaration.SIGNATORIES}}</div>
+    <!--<div *ngIf="master == 'PERSONS'" class="detail">
+    </div>-->
+    <label *ngIf="master == 'PERSONS'">Linked:</label><div *ngIf="master == 'PERSONS'" class="value"><mat-checkbox #linked [checked]="declaration.LINKED == 1" (click)="toggle()"></mat-checkbox></div>
+</div>
+<ng-template #elseBlock>Select a declaration to see its details</ng-template>
