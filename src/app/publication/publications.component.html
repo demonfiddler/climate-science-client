@@ -10,14 +10,6 @@
     </div>
 
     <mat-table [dataSource]="dataSource" style="height: 300px; overflow-y: auto;">
-        <ng-container matColumnDef="SELECTED">
-            <mat-header-cell *matHeaderCellDef> Select </mat-header-cell>
-            <mat-cell *matCellDef="let publication">
-                <mat-checkbox (click)="$event.stopPropagation()"
-                              (change)="$event ? selectionModel.toggle(publication) : null"
-                              [checked]="selectionModel.isSelected(publication)"></mat-checkbox>
-            </mat-cell>
-        </ng-container>
 
         <ng-container matColumnDef="TITLE">
             <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
@@ -46,6 +38,10 @@
 
         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
         <mat-row *matRowDef="let publication; columns: displayedColumns;" (click)="onSelectRow(publication, $event)" [class.selected]="publication === selection"></mat-row>
+        <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="6">(no data found)</td>
+        </tr>
+
     </mat-table>
 
     <mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 20, 50, 100]"

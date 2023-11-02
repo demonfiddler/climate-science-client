@@ -43,10 +43,6 @@
             <mat-header-cell *matHeaderCellDef> Rating </mat-header-cell>
             <mat-cell *matCellDef="let person">
                 <ngb-rating [max]="5" [rate]="person.RATING" [readonly]="true">
-                    <!--TODO: get custom template working, to make active stars more prominent-->
-                    <!--<ng-template let-fill="fill" let-index="index">
-                        <i class="bi-star{{fill === 100 ? '-fill' : ''}}" [class.filled]="fill === 100" [class.low]="index < 3"></i>
-                    </ng-template>-->
                 </ngb-rating>
             </mat-cell>
         </ng-container>
@@ -58,7 +54,51 @@
 
         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
         <mat-row *matRowDef="let person; columns: displayedColumns;" (click)="onSelectRow(person, $event)" [class.selected]="person === selection"></mat-row>
+        <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="6">(no data found)</td>
+        </tr>
     </mat-table>
+    <!--<table mat-table [dataSource]="dataSource" style="height: 300px; overflow-y: auto;">
+
+        <ng-container matColumnDef="TITLE">
+            <th mat-header-cell *matHeaderCellDef> Title </th>
+            <td mat-cell *matCellDef="let person"> {{person.TITLE}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="FIRST_NAME">
+            <th mat-header-cell *matHeaderCellDef> First Name </th>
+            <td mat-cell *matCellDef="let person"> {{person.FIRST_NAME}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="LAST_NAME">
+            <th mat-header-cell *matHeaderCellDef> Last Name </th>
+            <td mat-cell *matCellDef="let person"> {{person.PREFIX}} {{person.LAST_NAME}} {{person.SUFFIX}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="COUNTRY">
+            <th mat-header-cell *matHeaderCellDef> Country </th>
+            <td mat-cell *matCellDef="let person"> {{person.COUNTRY}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="RATING">
+            <th mat-header-cell *matHeaderCellDef> Rating </th>
+            <td mat-cell *matCellDef="let person">
+                <ngb-rating [max]="5" [rate]="person.RATING" [readonly]="true"></ngb-rating>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="PUBLISHED">
+            <th mat-header-cell *matHeaderCellDef> Published </th>
+            <td mat-cell *matCellDef="let person"> <mat-checkbox disabled [checked]="person.PUBLISHED == 1"></mat-checkbox> </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr class="mat-row" *matRowDef="let person; columns: displayedColumns;" (click)="onSelectRow(person, $event)" [class.selected]="person === selection"></tr>
+        <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="6">(no data found)</td>
+        </tr>
+
+    </table>-->
 
     <mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 20, 50, 100]"
         showFirstLastButtons
