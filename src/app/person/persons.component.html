@@ -52,7 +52,7 @@
             <mat-cell *matCellDef="let person"> <mat-checkbox disabled [checked]="person.PUBLISHED == 1"></mat-checkbox> </mat-cell>
         </ng-container>
 
-        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
         <mat-row *matRowDef="let person; columns: displayedColumns;" (click)="onSelectRow(person, $event)" [class.selected]="person === selection"></mat-row>
         <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell" colspan="6">(no data found)</td>
@@ -92,7 +92,7 @@
             <td mat-cell *matCellDef="let person"> <mat-checkbox disabled [checked]="person.PUBLISHED == 1"></mat-checkbox> </td>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
         <tr class="mat-row" *matRowDef="let person; columns: displayedColumns;" (click)="onSelectRow(person, $event)" [class.selected]="person === selection"></tr>
         <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell" colspan="6">(no data found)</td>

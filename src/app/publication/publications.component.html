@@ -36,7 +36,7 @@
             <mat-cell *matCellDef="let publication"> <mat-checkbox disabled [checked]="publication.PEER_REVIEWED == 1"></mat-checkbox> </mat-cell>
         </ng-container>
 
-        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
         <mat-row *matRowDef="let publication; columns: displayedColumns;" (click)="onSelectRow(publication, $event)" [class.selected]="publication === selection"></mat-row>
         <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell" colspan="6">(no data found)</td>

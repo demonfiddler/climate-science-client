@@ -26,7 +26,7 @@
             <mat-cell *matCellDef="let quotation"> {{quotation.SOURCE}} </mat-cell>
         </ng-container>    
 
-        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
         <mat-row *matRowDef="let quotation; columns: displayedColumns;" (click)="onSelectRow(quotation, $event)" [class.selected]="quotation === selection"></mat-row>
         <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell" colspan="6">(no data found)</td>
