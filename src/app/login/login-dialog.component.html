@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>Authenticate</h2>
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <fieldset>
+      <mat-form-field>
+        <mat-label>User ID:</mat-label>
+        <input matInput #userId name="userId" formControlName="userId" required>
+      </mat-form-field><br>
+      <mat-form-field>
+        <mat-label>Password:</mat-label>
+        <input matInput #password name="password" formControlName="password" type="password" required>
+      </mat-form-field>
+    </fieldset>
+  </form>
+  <div>{{message}}</div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button
+    color="primary"
+    (disabled)="!(userId.value && password.value)"
+    (click)="login()">Login</button>
+  <button mat-button mat-dialog-close>Cancel</button>
+</mat-dialog-actions>

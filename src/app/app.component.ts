@@ -7,9 +7,14 @@
 import { Component, ViewChild } from '@angular/core';
 import { MatRadioGroup } from '@angular/material/radio';
 import { MatExpansionPanel } from '@angular/material/expansion';
+import { MatMenuTrigger } from '@angular/material/menu';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Person, Publication, Declaration, Quotation } from './shared/data-model';
 import { Master } from './shared/utils';
+import { ClimateScienceService } from './shared/climate-science.service';
+import { LoginDialogComponent } from './login/login-dialog.component';
 
 /**
  * The top-level application component. It supports four entity lists for Persons, Publications,
@@ -29,11 +34,15 @@ export class AppComponent {
   @ViewChild('publications') publicationsExpander : MatExpansionPanel;
   @ViewChild('declarations') declarationsExpander : MatExpansionPanel;
   @ViewChild('quotations') quotationsExpander : MatExpansionPanel;
+  @ViewChild('menuTrigger') menuTrigger: MatMenuTrigger;
 
   person : Person;
   publication : Publication;
   declaration : Declaration;
   quotation : Quotation;
+  
+  constructor(public authService: ClimateScienceService, public dialog: MatDialog, private snackBar: MatSnackBar) {
+  }
 
   /**
    * Registers a change event listener on the 'master' control, to expand or collapse the
@@ -69,6 +78,29 @@ export class AppComponent {
           break;
       }
     });
+    this.authService.loginChange.subscribe(loggedIn => this.openSnackBar("You are now logged " + (loggedIn ? "in" : "out"), undefined, 5));
   }
 
+  /**
+   * Presents a modal login dialog.
+   */
+  openLoginDialog() : void {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    dialogConfig.restoreFocus = false;
+    const dialogRef = this.dialog.open(LoginDialogComponent, dialogConfig);
+    dialogRef.componentInstance.dialogRef = dialogRef;
+
+    // Manually restore focus to the menu trigger since the element that
+    // opens the dialog won't be in the DOM any more when the dialog closes.
+    dialogRef.afterClosed().subscribe(() => {
+      // MatIcon doesn't have a focus method.
+      // this.menuTrigger.focus();
+    });
+  }
+
+  private openSnackBar(message: string, action?: string, duration?: number) : void {
+    this.snackBar.open(message, action, duration ? {duration: duration * 1000, verticalPosition: 'top'} : undefined);
+  }
 }

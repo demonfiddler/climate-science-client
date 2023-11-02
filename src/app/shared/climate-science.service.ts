@@ -4,11 +4,18 @@
  * Licensed under the GNU Affero General Public License v.3 https://www.gnu.org/licenses/agpl-3.0.html
  */
 
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpEvent, HttpHeaders, HttpParams } from '@angular/common/http'
-import { Observable } from 'rxjs';
+import { EventEmitter, Injectable } from '@angular/core';
+import { HttpClient, HttpEvent, HttpHeaders, HttpParams, HttpResponse, HttpStatusCode } from '@angular/common/http'
+import { Observable, Subject } from 'rxjs';
+import { DateTime } from 'luxon';
 
 import { Person, Publication, Declaration, Quotation, ResultSet } from './data-model';
+import { base64UrlDecode } from './utils';
+
+const JWT_EXPIRY = 'jwt_expiry';
+const JWT_PAYLOAD = 'jwt_payload';
+const JWT_SUBJECT = 'jwt_subject';
+const JWT_TOKEN = 'jwt_token';
 
 /**
  * Provides the client API for the REST service.
@@ -17,23 +24,143 @@ import { Person, Publication, Declaration, Quotation, ResultSet } from './data-m
   providedIn: 'root'
 })
 export class ClimateScienceService {
+
   static readonly BASE_URL = "http://debian.local/climate-service";
-
-  /**
-   * Constructs a new ClimateScienceService.
-   * @param http The injected HttpClient.
-   */
-  constructor(private http: HttpClient) { }
-
   static readonly httpGetOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json'
     })
   };
 
-  static readonly httpWriteOptions = {
-    observe: "events"
-  };
+  /**
+   * Notifies changes in logged in status.
+   */
+  loginChange = new EventEmitter<boolean>();
+  private sessionTimer : any;
+
+  /**
+   * Constructs a new ClimateScienceService.
+   * @param http The injected HttpClient.
+   */
+  constructor(private http: HttpClient) {
+  }
+
+  /**
+   * Authenticates a user.
+   * @param userId The user ID.
+   * @param password The password.
+   * @see https://blog.angular-university.io/angular-jwt/
+   */
+  login(userId: string, password: string) : Observable<boolean> {
+    let url = ClimateScienceService.BASE_URL + '/auth/login';
+    let auth = this.http.post<string>(url, {userId: userId, password: password}, {observe: "events"});
+    let result = new Subject<boolean>();
+    let _this = this;
+    let subs = auth.subscribe({
+      next(e) {
+        if (e instanceof HttpResponse) {
+          let resp : HttpResponse<string> = e;
+          switch (resp.status) {
+            case HttpStatusCode.Ok:
+              let jwt = resp.body;
+              _this.setSession(jwt);
+              console.log("Authentication successful, Authorization: " + resp.body);
+              result.next(true);
+              break;
+            default:
+              _this.setSession(null);
+              console.log("Authentication failed, status: " + resp.status);
+              result.next(false);
+              break;
+          }
+          subs.unsubscribe();
+        }
+      },
+      error(err) {
+        _this.setSession(null);
+        console.log("Authentication failed, error: " + err);
+        result.next(false);
+      }
+    });
+    return result;
+  }
+
+  /**
+   * Clears the authentication token from session storage, so future requests will be unauthenticated.
+   */
+  logout() : void {
+    this.setSession(null);
+  }
+
+  /**
+   * Stores the authentication token in session storage and fires a loginChange event.
+   * Also sets a timer to fire when the session has expired.
+   * @param jwt The authentication object returned by the server.
+   */
+  private setSession(jwt: string|null) : void {
+    clearInterval(this.sessionTimer);
+    if (jwt) {
+      let tokens = jwt.split('.');
+      let payloadStr = base64UrlDecode(tokens[1]);
+      let payload = JSON.parse(payloadStr);
+
+      sessionStorage.setItem(JWT_TOKEN, jwt);
+      sessionStorage.setItem(JWT_EXPIRY, payload.exp);
+      sessionStorage.setItem(JWT_SUBJECT, payload.sub);
+      sessionStorage.setItem(JWT_PAYLOAD, payloadStr);
+
+      // Clear credentials and fire logout event when session expires.
+      this.sessionTimer = setInterval(() => {
+        sessionStorage.clear();
+        this.loginChange.next(false);
+      }, (payload.exp - DateTime.now().toSeconds()) * 1000);
+    } else {
+      sessionStorage.clear();
+    }
+    this.loginChange.next(jwt != null);
+  }
+
+  /**
+   * Returns the current session.
+   * @returns The current session or null if not logged in.
+   */
+  getCurrentSession() : any {
+    let payloadStr = sessionStorage.getItem(JWT_PAYLOAD);
+    return payloadStr ? JSON.parse(payloadStr) : null;
+  }
+
+  /**
+   * Returns the current session.
+   * @returns The current session or null if not logged in.
+   */
+  getCurrentSubject() : string|null {
+    return sessionStorage.getItem(JWT_SUBJECT);
+  }
+
+  /**
+   * Tests whether the client is logged in.
+   * @returns true if the client holds an unexpired authentication token.
+   */
+  isLoggedIn() : boolean {
+    return DateTime.now().toSeconds() < this.getExpiration();
+  }
+
+  /**
+   * Tests whether the client is logged out.
+   * @returns true if the client does not hold an unexpired authentication token.
+   */
+  isLoggedOut() : boolean {
+      return !this.isLoggedIn();
+  }
+
+  /**
+   * Returns the authentication token's expiration date/time, if one is held.
+   * @returns the expiration date/time in Epoch seconds.
+   */
+  private getExpiration() : number {
+      const expiration = sessionStorage.getItem("jwt_expiry");
+      return expiration ? JSON.parse(expiration) : null;
+  }
 
   /**
    * Fetches a specified Person.
@@ -215,7 +342,7 @@ export class ClimateScienceService {
    * @return An Observable to deliver the HttpEvents from the request.
    */
   linkQuotationAuthor(quotationId: number, personId?: number) : Observable<HttpEvent<void>> {
-    // PUT /quotation/{quotationId}?personId={personId} => linkQuotationAuthor(quotationId, personId)
+    // PATCH /quotation/{quotationId}?personId={personId} => linkQuotationAuthor(quotationId, personId)
     let url = ClimateScienceService.BASE_URL + "/quotation/" + quotationId;
     let params = new HttpParams();
     if (personId)
@@ -230,9 +357,9 @@ export class ClimateScienceService {
    * @return An Observable to deliver the HttpEvents from the request.
    */
   createAuthorship(personId: number, publicationId: number) : Observable<HttpEvent<string>> {
-    // POST /authorship/{personId}/{publicationId} => createAuthorship(personId, publicationId)
+    // PUT /authorship/{personId}/{publicationId} => createAuthorship(personId, publicationId)
     let url = ClimateScienceService.BASE_URL + "/authorship/" + personId + "/" + publicationId;
-    return this.http.post<string>(url, null, {observe: "events"});
+    return this.http.put<string>(url, null, {observe: "events"});
   }
 
   /**
@@ -254,9 +381,9 @@ export class ClimateScienceService {
    * @return An Observable to deliver the HttpEvents from the request.
    */
   createSignatory(personId: number, declarationId: number) : Observable<HttpEvent<string>> {
-    // POST /signatory/{personId}/{declarationId} => createSignatory(personId, declarationId)
+    // PUT /signatory/{personId}/{declarationId} => createSignatory(personId, declarationId)
     let url = ClimateScienceService.BASE_URL + "/signatory/" + personId + "/" + declarationId;
-    return this.http.post<string>(url, null, {observe: "events"});
+    return this.http.put<string>(url, null, {observe: "events"});
   }
 
   /**

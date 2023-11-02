@@ -54,7 +54,9 @@ export class QuotationDataSource extends AbstractDataSource<Quotation> {
   loadQuotationsByAuthor(personId? : number, lastName? : string, pageIndex = 0, pageSize = 10) {
     this.loadingSubject.next(true);
 
-    if (personId && lastName) {
+    if (this.climateScienceService.isLoggedOut())
+      lastName = undefined;
+    if (personId) {
       let subscription = this.climateScienceService.findQuotationsByAuthor(personId, lastName, pageIndex * pageSize, pageSize)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
@@ -62,7 +64,7 @@ export class QuotationDataSource extends AbstractDataSource<Quotation> {
           // The weird instanceof check is to circumvent compiler error TS2339 Property 'count' does not exist on type 'never[]'.
           tap(result => this.countSubject.next(result instanceof Array ? result.length : result.count)),
           finalize(() => {this.loadingSubject.next(false); subscription.unsubscribe()})
-          )
+        )
         // Ditto re. instanceof and error TS2339.
         .subscribe(result => this.contentSubject.next(result instanceof Array ? [] : result.records));
     } else {

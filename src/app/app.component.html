@@ -7,6 +7,12 @@
   <div class="spacer"></div>
   <span>Climate Science</span>
   <div class="spacer"></div>
+  <mat-icon #menuTrigger [matMenuTriggerFor]="account" aria-hidden="false" aria-label="Current Account" fontIcon="account_circle" style="font-size: 1.5rem"></mat-icon>
+  <mat-menu #account="matMenu">
+    <button mat-menu-item [disabled]="authService.isLoggedIn()" (click)="openLoginDialog()">Login</button>
+    <button mat-menu-item [disabled]="authService.isLoggedOut()" (click)="authService.logout()">Logout</button>
+  </mat-menu>
+  <span>{{authService.getCurrentSubject()}}</span>
 </div>
 
 <div class="content" role="main">

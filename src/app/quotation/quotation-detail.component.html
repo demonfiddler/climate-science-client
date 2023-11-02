@@ -10,6 +10,7 @@
     <label>Date:</label><div class="value">{{quotation.DATE}}</div>
     <label>Source:</label><div class="value">{{quotation.SOURCE}}</div>
     <label>URL:</label><div class="value"><a href="{{quotation.URL}}" target="_blank">{{quotation.URL}}</a></div>
-    <label *ngIf="master == 'PERSONS'">Linked:</label><div *ngIf="master == 'PERSONS'" class="value"><mat-checkbox #linked [checked]="quotation.LINKED == 1" (click)="toggle()"></mat-checkbox></div>
+    <label *ngIf="master == 'PERSONS' && climateScienceService.isLoggedIn()">Linked:</label>
+    <div *ngIf="master == 'PERSONS' && climateScienceService.isLoggedIn()" class="value"><mat-checkbox #linked [checked]="quotation.LINKED == 1" (click)="toggle()"></mat-checkbox></div>
 </div>
 <ng-template #elseBlock>Select a quotation to see its details</ng-template>

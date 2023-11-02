@@ -12,8 +12,7 @@
     <label>URL:</label><div class="value"><a href="{{declaration.URL}}" target="_blank">{{declaration.URL}}</a></div>
     <label>Signatory count:</label><div class="value">{{declaration.SIGNATORY_COUNT}}</div>
     <label>Signatories:</label><div class="scrollable value">{{declaration.SIGNATORIES}}</div>
-    <!--<div *ngIf="master == 'PERSONS'" class="detail">
-    </div>-->
-    <label *ngIf="master == 'PERSONS'">Linked:</label><div *ngIf="master == 'PERSONS'" class="value"><mat-checkbox #linked [checked]="declaration.LINKED == 1" (click)="toggle()"></mat-checkbox></div>
+    <label *ngIf="master == 'PERSONS' && climateScienceService.isLoggedIn()">Linked:</label>
+    <div *ngIf="master == 'PERSONS' && climateScienceService.isLoggedIn()" class="value"><mat-checkbox #linked [checked]="declaration.LINKED == 1" (click)="toggle()"></mat-checkbox></div>
 </div>
 <ng-template #elseBlock>Select a declaration to see its details</ng-template>

@@ -17,8 +17,7 @@
     <label>ISSN/ISBN:</label><div class="value">{{publication.ISSN_ISBN}}</div>
     <label>URL:</label><div class="value"><a href="{{publication.URL}}" target="_blank">{{publication.URL}}</a></div>
     <label>Accessed:</label><div class="value">{{publication.ACCESSED}}</div>
-    <!--<div *ngIf="master == 'PERSONS'" class="detail">
-    </div>-->
-    <label *ngIf="master == 'PERSONS'">Linked:</label><div *ngIf="master == 'PERSONS'" class="value"><mat-checkbox #linked [checked]="publication.LINKED == 1" (click)="toggle()"></mat-checkbox></div>
+    <label *ngIf="master == 'PERSONS' && climateScienceService.isLoggedIn()">Linked:</label>
+    <div *ngIf="master == 'PERSONS' && climateScienceService.isLoggedIn()" class="value"><mat-checkbox #linked [checked]="publication.LINKED == 1" (click)="toggle()"></mat-checkbox></div>
 </div>
 <ng-template #elseBlock>Select a publication to see its details</ng-template>

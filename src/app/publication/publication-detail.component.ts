@@ -24,6 +24,7 @@ import { HttpEvent, HttpResponse, HttpStatusCode } from '@angular/common/http';
   imports: [CommonModule, MatCheckboxModule],
 })
 export class PublicationDetailComponent {
+
   @Input() master: string = "NONE";
   @Input() person: Person | undefined;
   @Input() publication: Publication | undefined;
@@ -33,7 +34,7 @@ export class PublicationDetailComponent {
    * Constructs a new PublicationDetailComponent.
    * @param climateScienceService The injected climate science service.
    */
-  constructor(private climateScienceService: ClimateScienceService) {
+  constructor(public climateScienceService: ClimateScienceService) {
   }
 
   /**
@@ -55,19 +56,21 @@ export class PublicationDetailComponent {
    * @param httpEvent The HTTP event received.
    */
   handleResponse(httpEvent: HttpEvent<string | void>): void {
-    console.debug("Received HttpEvent");
     if (httpEvent instanceof HttpResponse) {
       let httpResponse : HttpResponse<any> = httpEvent;
-      if (httpResponse.status == HttpStatusCode.NoContent) {
-        // If the write operation succeeded, update the model to match the UI.
-        if (this.publication) {
-          this.publication.LINKED = !this.publication.LINKED;
-          console.debug(`Updated publication.LINKED to ${this.publication.LINKED}`);
-        }
-      } else {
-        // If the write operation failed, update the UI to match the unchanged model.
-        this.linkedCheckbox.toggle();
-        console.debug(`Reverted #linked to ${this.linkedCheckbox.checked}`);
+      switch (httpResponse.status) {
+        case HttpStatusCode.Ok:
+        case HttpStatusCode.Created:
+          // If the write operation succeeded, update the model to match the UI.
+          if (this.publication) {
+            this.publication.LINKED = !this.publication.LINKED;
+            console.debug(`Updated publication.LINKED to ${this.publication.LINKED}`);
+          }
+          break;
+        default:
+          // If the write operation failed, update the UI to match the unchanged model.
+          this.linkedCheckbox.toggle();
+          console.debug(`Reverted #linked to ${this.linkedCheckbox.checked}`);
       }
     }
   }

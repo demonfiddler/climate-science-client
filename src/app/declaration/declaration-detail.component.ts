@@ -34,7 +34,7 @@ export class DeclarationDetailComponent {
    * Constructs a new DeclarationDetailComponent.
    * @param climateScienceService The injected climate science service.
    */
-  constructor(private climateScienceService: ClimateScienceService) {}
+  constructor(public climateScienceService: ClimateScienceService) {}
 
   /**
    * Makes or breaks the explicit signatory link between the selected Person and selected Declaration.
@@ -55,19 +55,21 @@ export class DeclarationDetailComponent {
    * @param httpEvent The HTTP event received.
    */
   private handleResponse(httpEvent: HttpEvent<string | void>): void {
-    console.debug("Received HttpEvent");
     if (httpEvent instanceof HttpResponse) {
       let httpResponse : HttpResponse<any> = httpEvent;
-      if (httpResponse.status == HttpStatusCode.NoContent) {
-        // If the write operation succeeded, update the model to match the UI.
-        if (this.declaration) {
-          this.declaration.LINKED = !this.declaration.LINKED;
-          console.debug(`Updated declaration.LINKED to ${this.declaration.LINKED}`);
-        }
-      } else {
-        // If the write operation failed, update the UI to match the unchanged model.
-        this.linkedCheckbox.toggle();
-        console.debug(`Reverted #linked to ${this.linkedCheckbox.checked}`);
+      switch (httpResponse.status) {
+        case HttpStatusCode.Ok:
+        case HttpStatusCode.Created:
+          // If the write operation succeeded, update the model to match the UI.
+          if (this.declaration) {
+            this.declaration.LINKED = !this.declaration.LINKED;
+            console.debug(`Updated declaration.LINKED to ${this.declaration.LINKED}`);
+          }
+          break;
+        default:
+          // If the write operation failed, update the UI to match the unchanged model.
+          this.linkedCheckbox.toggle();
+          console.debug(`Reverted #linked to ${this.linkedCheckbox.checked}`);
       }
     }
   }

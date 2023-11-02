@@ -34,7 +34,7 @@ export class QuotationDetailComponent {
    * Constructs a new QuotationDetailComponent.
    * @param climateScienceService The injected climate science service.
    */
-  constructor(private climateScienceService: ClimateScienceService) {}
+  constructor(public climateScienceService: ClimateScienceService) {}
 
   /**
    * Makes or breaks the explicit authorship link between the selected Person and selected Quotation.
@@ -52,19 +52,20 @@ export class QuotationDetailComponent {
    * @param httpEvent The HTTP event received.
    */
   handleResponse(httpEvent: HttpEvent<string | void>): void {
-    console.debug("Received HttpEvent");
     if (httpEvent instanceof HttpResponse) {
       let httpResponse : HttpResponse<any> = httpEvent;
-      if (httpResponse.status == HttpStatusCode.Ok) {
-        // If the write operation succeeded, update the model to match the UI.
-        if (this.quotation && this.person) {
-          this.quotation.PERSON_ID = this.quotation.PERSON_ID ? undefined : this.person.ID;
-          console.debug(`Updated quotation.PERSON_ID to ${this.quotation.PERSON_ID}`);
-        }
-      } else {
-        // If the write operation failed, update the UI to match the unchanged model.
-        this.linkedCheckbox.toggle();
-        console.debug(`Reverted #linked to ${this.linkedCheckbox.checked}`);
+      switch (httpResponse.status) {
+        case HttpStatusCode.Ok:
+          // If the write operation succeeded, update the model to match the UI.
+          if (this.quotation && this.person) {
+            this.quotation.PERSON_ID = this.quotation.PERSON_ID ? undefined : this.person.ID;
+            console.debug(`Updated quotation.PERSON_ID to ${this.quotation.PERSON_ID}`);
+          }
+          break;
+        default:
+          // If the write operation failed, update the UI to match the unchanged model.
+          this.linkedCheckbox.toggle();
+          console.debug(`Reverted #linked to ${this.linkedCheckbox.checked}`);
       }
     }
   }
