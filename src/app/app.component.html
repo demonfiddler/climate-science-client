@@ -4,9 +4,11 @@
     Licensed under the GNU Affero General Public License v.3 https://www.gnu.org/licenses/agpl-3.0.html
 -->
 <div class="toolbar" role="banner">
+  <span><a href="https://campaign-resources.org/" target="_blank" style="color: white"><mat-icon aria-hidden="false" aria-label="Home" title="Home" fontIcon="home" style="font-size: 1.5rem"></mat-icon>campaign-resources.org</a></span>
   <div class="spacer"></div>
-  <span>Climate Science</span>
+  <span>{{title}}</span>
   <div class="spacer"></div>
+  <span><a href="https://campaign-resources.org/climate-science-client-instructions.html" aria-label="Instructions" title="Instructions for use" target="_blank" style="color: white">Instructions</a></span>
   <mat-icon #menuTrigger [matMenuTriggerFor]="account" aria-hidden="false" aria-label="Current Account" fontIcon="account_circle" style="font-size: 1.5rem"></mat-icon>
   <mat-menu #account="matMenu">
     <button mat-menu-item [disabled]="authService.isLoggedIn()" (click)="openLoginDialog()">Login</button>
@@ -18,18 +20,24 @@
 <div class="content" role="main">
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Choose Focus</mat-card-title>
-      <mat-card-subtitle>Choose the list to focus on</mat-card-subtitle>
+      <mat-card-title>Configuration</mat-card-title>
     </mat-card-header>
     <mat-card-actions>
-      <mat-radio-group #master="matRadioGroup" name="master" value="NONE" aria-label="Select an option">
-        <mat-radio-button value="NONE">None</mat-radio-button>
-        <mat-radio-button value="PERSONS">Scientists</mat-radio-button>
-        <mat-radio-button value="PUBLICATIONS">Science</mat-radio-button>
-        <mat-radio-button value="DECLARATIONS">Declarations</mat-radio-button>
-        <mat-radio-button value="QUOTATIONS">Quotations</mat-radio-button>
-      </mat-radio-group>
-    </mat-card-actions>
+      <fieldset>
+        <legend>Choose the list to focus on:</legend>
+        <mat-radio-group #master="matRadioGroup" value="NONE" aria-label="Select an option">
+          <mat-radio-button value="NONE">None</mat-radio-button>
+          <mat-radio-button value="PERSONS">Scientists</mat-radio-button>
+          <mat-radio-button value="PUBLICATIONS">Science</mat-radio-button>
+          <mat-radio-button value="DECLARATIONS">Declarations</mat-radio-button>
+          <mat-radio-button value="QUOTATIONS">Quotations</mat-radio-button>
+        </mat-radio-group>
+      </fieldset>
+      <fieldset>
+        <legend>Options</legend>
+        <mat-checkbox #filters="matCheckbox">Show filters</mat-checkbox>
+      </fieldset>
+      </mat-card-actions>
   </mat-card>
   <br>
 
@@ -46,6 +54,7 @@
       </mat-expansion-panel-header>
       <app-persons
         [master]="master.value"
+        [filters]="filters.checked"
         [publication]="publication"
         [declaration]="declaration"
         [quotation]="quotation"
@@ -76,6 +85,7 @@
       </mat-expansion-panel-header>
       <app-publications
         [master]="master.value"
+        [filters]="filters.checked"
         [person]="person"
         [declaration]="declaration"
         [quotation]="quotation"
@@ -110,6 +120,7 @@
         </mat-expansion-panel-header>
         <app-declarations
           [master]="master.value"
+          [filters]="filters.checked"
           [person]="person"
           [publication]="publication"
           [quotation]="quotation"
@@ -144,6 +155,7 @@
         </mat-expansion-panel-header>
         <app-quotations
           [master]="master.value"
+          [filters]="filters.checked"
           [person]="person"
           (selectionChange)="quotation=$event">
         </app-quotations>

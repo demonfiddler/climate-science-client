@@ -64,13 +64,13 @@ export class PublicationDetailComponent {
           // If the write operation succeeded, update the model to match the UI.
           if (this.publication) {
             this.publication.LINKED = !this.publication.LINKED;
-            console.debug(`Updated publication.LINKED to ${this.publication.LINKED}`);
+            // console.debug(`Updated publication.LINKED to ${this.publication.LINKED}`);
           }
           break;
         default:
           // If the write operation failed, update the UI to match the unchanged model.
           this.linkedCheckbox.toggle();
-          console.debug(`Reverted #linked to ${this.linkedCheckbox.checked}`);
+          // console.debug(`Reverted #linked to ${this.linkedCheckbox.checked}`);
       }
     }
   }

@@ -6,11 +6,13 @@
 
 import { Component, ViewChild } from '@angular/core';
 import { MatRadioGroup } from '@angular/material/radio';
+import { MatCheckbox, MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionPanel } from '@angular/material/expansion';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
+import { environment as env } from '../environments/environment';
 import { Person, Publication, Declaration, Quotation } from './shared/data-model';
 import { Master } from './shared/utils';
 import { ClimateScienceService } from './shared/climate-science.service';
@@ -29,6 +31,8 @@ import { LoginDialogComponent } from './login/login-dialog.component';
 })
 export class AppComponent {
 
+  title? = 'app';
+
   @ViewChild('master') master : MatRadioGroup;
   @ViewChild('persons') personsExpander : MatExpansionPanel;
   @ViewChild('publications') publicationsExpander : MatExpansionPanel;
@@ -40,8 +44,9 @@ export class AppComponent {
   publication : Publication;
   declaration : Declaration;
   quotation : Quotation;
-  
+
   constructor(public authService: ClimateScienceService, public dialog: MatDialog, private snackBar: MatSnackBar) {
+    this.title = env.title;
   }
 
   /**

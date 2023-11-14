@@ -5,11 +5,14 @@
  */
 
 import { Component, Input, SimpleChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CommonModule } from '@angular/common';
+import { MatFormFieldModule, MatHint } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule, MatIcon } from '@angular/material/icon'; 
 
 import { Person, Publication, Declaration, Quotation } from '../shared/data-model';
 import { DeclarationDataSource } from './declaration-data-source';
@@ -25,7 +28,16 @@ import { Master } from '../shared/utils';
   templateUrl: './declarations.component.html',
   styleUrls: ['./declarations.component.css'],
   standalone: true,
-  imports: [MatTableModule, MatCheckboxModule, MatPaginatorModule, MatProgressSpinnerModule, CommonModule],
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatCheckboxModule,
+    MatPaginatorModule,
+    MatProgressSpinnerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+  ],
 })
 export class DeclarationsComponent extends AbstractTableComponent<Declaration> {
   @Input() person: Person;
@@ -54,9 +66,10 @@ export class DeclarationsComponent extends AbstractTableComponent<Declaration> {
    * @inheritdoc
    * @override
    */
-  ngOnInit() {
+  override ngOnInit() {
+    super.ngOnInit();
     this.dataSource = new DeclarationDataSource(this.climateScienceService);
-    this.dataSource.loadDeclarations(0, 5);
+    this.dataSource.loadDeclarations('', 0, 5);
   }
 
   /**
@@ -78,15 +91,15 @@ export class DeclarationsComponent extends AbstractTableComponent<Declaration> {
    * @inheritdoc
    * @override
    */
-  loadData() {
+  loadData(filter: string) {
     if (this.dataSource && this.master) {
       switch (this.master) {
         case Master.None:
         case Master.Declarations:
-          this.dataSource.loadDeclarations(this.paginator.pageIndex, this.paginator.pageSize);
+          this.dataSource.loadDeclarations(filter, this.paginator.pageIndex, this.paginator.pageSize);
           break;
         case Master.Persons:
-          this.dataSource.loadDeclarationsBySignatory(this.getEntityId(this.person), this.getLastName(this.person), this.paginator.pageIndex, this.paginator.pageSize);
+          this.dataSource.loadDeclarationsBySignatory(this.getEntityId(this.person), this.getLastName(this.person), filter, this.paginator.pageIndex, this.paginator.pageSize);
           break;
         case Master.Publications:
         case Master.Quotations:

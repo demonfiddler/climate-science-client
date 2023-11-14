@@ -26,13 +26,14 @@ export class PublicationDataSource extends AbstractDataSource<Publication> {
 
   /**
    * Loads Publications from the REST service.
+   * @param filter User-defined search string.
    * @param pageIndex The 0-based index of the page requested.
    * @param pageSize The number of items to load.
    */
-  loadPublications(pageIndex = 0, pageSize = 10) {
+  loadPublications(filter: string, pageIndex = 0, pageSize = 10) {
       this.loadingSubject.next(true);
 
-      let subscription = this.climateScienceService.findPublications(pageIndex * pageSize, pageSize)
+      let subscription = this.climateScienceService.findPublications(filter, pageIndex * pageSize, pageSize)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),
@@ -48,16 +49,17 @@ export class PublicationDataSource extends AbstractDataSource<Publication> {
    * Loads the Publications that were (or may be) authored by the specified Person.
    * @param personId The ID of the specified Person.
    * @param lastName The specified Person's last name, matched against Publication authors.
+   * @param filter User-defined search string.
    * @param pageIndex The 0-based index of the page requested.
    * @param pageSize The number of items to load.
    */
-  loadPublicationsByAuthor(personId? : number, lastName? : string, pageIndex = 0, pageSize = 10) {
+  loadPublicationsByAuthor(personId : number|undefined, lastName : string|undefined, filter: string, pageIndex = 0, pageSize = 10) {
     this.loadingSubject.next(true);
 
     if (this.climateScienceService.isLoggedOut())
       lastName = undefined;
     if (personId) {
-      let subscription = this.climateScienceService.findPublicationsByAuthor(personId, lastName, pageIndex * pageSize, pageSize)
+      let subscription = this.climateScienceService.findPublicationsByAuthor(personId, lastName, filter, pageIndex * pageSize, pageSize)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),

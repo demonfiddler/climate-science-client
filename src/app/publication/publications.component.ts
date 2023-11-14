@@ -5,11 +5,14 @@
  */
 
 import { Component, Input, SimpleChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CommonModule } from '@angular/common';
+import { MatFormFieldModule, MatHint } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule, MatIcon } from '@angular/material/icon'; 
 
 import { Person, Publication, Declaration, Quotation } from '../shared/data-model';
 import { PublicationDataSource } from './publication-data-source';
@@ -25,7 +28,16 @@ import { Master } from '../shared/utils';
   templateUrl: './publications.component.html',
   styleUrls: ['./publications.component.css'],
   standalone: true,
-  imports: [MatTableModule, MatCheckboxModule, MatPaginatorModule, MatProgressSpinnerModule, CommonModule],
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatCheckboxModule,
+    MatPaginatorModule,
+    MatProgressSpinnerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+  ],
 })
 export class PublicationsComponent extends AbstractTableComponent<Publication> {
 
@@ -55,9 +67,10 @@ export class PublicationsComponent extends AbstractTableComponent<Publication> {
    * @inheritdoc
    * @override
    */
-  ngOnInit() {
+  override ngOnInit() {
+    super.ngOnInit();
     this.dataSource = new PublicationDataSource(this.climateScienceService);
-    this.dataSource.loadPublications(0, 5);
+    this.dataSource.loadPublications('', 0, 5);
   }
 
   /**
@@ -79,15 +92,15 @@ export class PublicationsComponent extends AbstractTableComponent<Publication> {
    * @inheritdoc
    * @override
    */
-  loadData() {
+  loadData(filter: string) {
     if (this.dataSource && this.master) {
       switch (this.master) {
         case Master.None:
         case Master.Publications:
-          this.dataSource.loadPublications(this.paginator.pageIndex, this.paginator.pageSize);
+          this.dataSource.loadPublications(filter, this.paginator.pageIndex, this.paginator.pageSize);
           break;
         case Master.Persons:
-          this.dataSource.loadPublicationsByAuthor(this.getEntityId(this.person), this.getLastName(this.person), this.paginator.pageIndex, this.paginator.pageSize);
+          this.dataSource.loadPublicationsByAuthor(this.getEntityId(this.person), this.getLastName(this.person), filter, this.paginator.pageIndex, this.paginator.pageSize);
           break;
         case Master.Declarations:
         case Master.Quotations:

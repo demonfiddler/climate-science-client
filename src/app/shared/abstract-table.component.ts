@@ -7,7 +7,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, AfterViewInit, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { SelectionModel } from '@angular/cdk/collections';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 
 import { Entity, Person } from './data-model';
 import { AbstractDataSource } from './abstract-data-source';
@@ -15,7 +15,7 @@ import { ClimateScienceService } from "./climate-science.service";
 
 /**
  * Abstract base for a component that displays a list of entities, with a uni-selection model.
- * @typeParam T - The type of objects the list contains.
+ * @typeParam T - The type of object the list contains.
  */
 @Component({
   template: ''
@@ -23,13 +23,16 @@ import { ClimateScienceService } from "./climate-science.service";
 export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 
   @Input() master: string = "NONE";
-  dataSource: AbstractDataSource<T>;
-  displayedColumns : string[];
-  selectionModel = new SelectionModel<T>(false, []);
+  @Input() filters: boolean = false;
   @Output() selectionChange = new EventEmitter<T>(true);
-  countSubscription : Subscription;
+  dataSource: AbstractDataSource<T>;
+  displayedColumns: string[];
+  selectionModel = new SelectionModel<T>(false, []);
+  countSubscription: Subscription;
   @ViewChild(MatPaginator) paginator: MatPaginator;
-  paginatorSubscription : Subscription;
+  paginatorSubscription: Subscription;
+  filter : string = '';
+  private filter$ = new Subject<string>();
 
   /**
    * Constructs a new AbstractTableComponent. 
@@ -66,12 +69,38 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
   }  
 
   /**
+   * Applies a user-supplied filter string.
+   * @param event The key-up event.
+   */
+  applyFilter(event: Event) {
+    const filter = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    this.filter$.next(filter);
+  }
+
+  /**
+   * Clears any filter string and reloads the data.
+   */
+  clearFilter() {
+    this.filter='';
+    this._loadData();
+  }
+
+  /**
    * Implementations can create their data source and load the initial data.
+   * Implementations must call super.ngOnInit().
    * @inheritdoc 
    * @override
    * @virtual
    */
-  abstract ngOnInit() : void;
+  ngOnInit() : void {
+    this.filter$.pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ).subscribe(filter => {
+      this.filter = filter;
+      this._loadData();
+    });
+  }
   
   /**
    * @inheritdoc
@@ -82,7 +111,7 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
     this.countSubscription = this.dataSource.count$.subscribe(count => this.paginator.length = count);
     this.paginatorSubscription = this.paginator.page.subscribe(() => {
       this.selectionModel.clear(true);
-      this.loadData();
+      this._loadData();
     });
   }
 
@@ -94,17 +123,9 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
    */
   ngOnChanges(changes: SimpleChanges) {
     let isRelevantChange = this.isRelevantChange(changes);
-    // let msg = this.componentName() + ` relevant = ${isRelevantChange}:\n`;
-    // for (const propName in changes) {
-    //   const chng = changes[propName];
-    //   const cur  = this.stringify(chng.currentValue);
-    //   const prev = this.stringify(chng.previousValue);
-    //   msg += `\t${propName}: currentValue = ${cur}, previousValue = ${prev}\n`;
-    // }
-    // console.debug(msg);
     if (isRelevantChange && this.dataSource) {
       this.selectionModel.clear(true);
-      this.loadData();
+      this._loadData();
     }
   }
 
@@ -136,9 +157,18 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
 
   /**
    * Loads the appropriate data into the receiving table component.
+   * Passes any user-defined search text to include in query predicates.
+   */
+  protected _loadData() : void {
+    this.loadData(this.filters ? this.filter : '');
+  }
+
+  /**
+   * Loads the appropriate data into the receiving table component.
+   * @param filter User-defined search text to include in query predicates.
    * @virtual
    */
-  abstract loadData() : void;
+  abstract loadData(filter: string) : void;
 
   /**
    * Returns the ID of a (possibly undefined) Entity.

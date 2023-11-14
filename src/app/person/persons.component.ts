@@ -5,11 +5,14 @@
  */
 
 import { Component, Input, SimpleChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CommonModule } from '@angular/common';
+import { MatFormFieldModule, MatHint } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule, MatIcon } from '@angular/material/icon'; 
 
 import { Person, Publication, Declaration, Quotation } from '../shared/data-model';
 import { PersonDataSource } from './person-data-source';
@@ -26,7 +29,17 @@ import { Master } from '../shared/utils';
   templateUrl: './persons.component.html',
   styleUrls: ['./persons.component.css'],
   standalone: true,
-  imports: [MatTableModule, MatCheckboxModule, MatPaginatorModule, MatProgressSpinnerModule, CommonModule, NgbRating],
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatCheckboxModule,
+    MatPaginatorModule,
+    MatProgressSpinnerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    NgbRating,
+  ],
 })
 export class PersonsComponent extends AbstractTableComponent<Person> {
   @Input() publication: Publication;
@@ -56,9 +69,11 @@ export class PersonsComponent extends AbstractTableComponent<Person> {
    * @inheritdoc
    * @override
    */
-  ngOnInit() {
+  override ngOnInit() {
+    super.ngOnInit();
     this.dataSource = new PersonDataSource(this.climateScienceService);
-    this.dataSource.loadPersons(0, 5);
+    // TODO: figure out whether this call is redundant.
+    this.dataSource.loadPersons('', 0, 5);
   }
 
   /**
@@ -85,18 +100,19 @@ export class PersonsComponent extends AbstractTableComponent<Person> {
    * @inheritdoc
    * @override
    */
-  loadData() {
+  loadData(filter: string) {
+    // console.debug(this.componentName() + ".loadData(" + filter + ')');
     if (this.dataSource && this.master) {
       switch (this.master) {
         case Master.None:
         case Master.Persons:
-          this.dataSource.loadPersons(this.paginator.pageIndex, this.paginator.pageSize);
+          this.dataSource.loadPersons(filter, this.paginator.pageIndex, this.paginator.pageSize);
           break;
         case Master.Publications:
-          this.dataSource.loadPersonsByPublication(this.getEntityId(this.publication), this.paginator.pageIndex, this.paginator.pageSize);
+          this.dataSource.loadPersonsByPublication(this.getEntityId(this.publication), filter, this.paginator.pageIndex, this.paginator.pageSize);
           break;
         case Master.Declarations:
-          this.dataSource.loadPersonsByDeclaration(this.getEntityId(this.declaration), this.paginator.pageIndex, this.paginator.pageSize);
+          this.dataSource.loadPersonsByDeclaration(this.getEntityId(this.declaration), filter, this.paginator.pageIndex, this.paginator.pageSize);
           break;
         case Master.Quotations:
           this.dataSource.loadPerson(this.quotation ? this.quotation.PERSON_ID : undefined);

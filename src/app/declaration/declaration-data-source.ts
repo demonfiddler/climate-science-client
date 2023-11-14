@@ -26,13 +26,14 @@ export class DeclarationDataSource extends AbstractDataSource<Declaration> {
 
   /**
    * Loads Declarations from the REST service.
+   * @param filter User-defined search string.
    * @param pageIndex The 0-based index of the page requested.
    * @param pageSize The number of items to load.
    */
-  loadDeclarations(pageIndex = 0, pageSize = 10) {
+  loadDeclarations(filter: string, pageIndex : number, pageSize : number) {
       this.loadingSubject.next(true);
 
-      let subscription = this.climateScienceService.findDeclarations(pageIndex * pageSize, pageSize)
+      let subscription = this.climateScienceService.findDeclarations(filter, pageIndex * pageSize, pageSize)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),
@@ -48,16 +49,17 @@ export class DeclarationDataSource extends AbstractDataSource<Declaration> {
    * Loads Declarations signed by the specified Person.
    * @param personId The ID of the person.
    * @param lastName The person's last name.
+   * @param filter User-defined search string.
    * @param pageIndex The 0-based index of the page requested.
    * @param pageSize The number of items to load.
    */
-  loadDeclarationsBySignatory(personId? : number, lastName? : string, pageIndex = 0, pageSize = 10) {
+  loadDeclarationsBySignatory(personId : number|undefined, lastName : string|undefined, filter: string, pageIndex : number, pageSize : number) {
     this.loadingSubject.next(true);
 
     if (this.climateScienceService.isLoggedOut())
       lastName = undefined;
     if (personId) {
-      let subscription = this.climateScienceService.findDeclarationsBySignatory(personId, lastName, pageIndex * pageSize, pageSize)
+      let subscription = this.climateScienceService.findDeclarationsBySignatory(personId, lastName, filter, pageIndex * pageSize, pageSize)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),

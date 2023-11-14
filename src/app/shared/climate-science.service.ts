@@ -11,6 +11,7 @@ import { DateTime } from 'luxon';
 
 import { Person, Publication, Declaration, Quotation, ResultSet } from './data-model';
 import { base64UrlDecode } from './utils';
+import { environment as env } from '../../environments/environment';
 
 const JWT_EXPIRY = 'jwt_expiry';
 const JWT_PAYLOAD = 'jwt_payload';
@@ -25,7 +26,6 @@ const JWT_TOKEN = 'jwt_token';
 })
 export class ClimateScienceService {
 
-  static readonly BASE_URL = "http://debian.local/climate-service";
   static readonly httpGetOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json'
@@ -43,6 +43,7 @@ export class ClimateScienceService {
    * @param http The injected HttpClient.
    */
   constructor(private http: HttpClient) {
+    console.debug('Service URL: ' + env.serviceUrl);
   }
 
   /**
@@ -52,7 +53,8 @@ export class ClimateScienceService {
    * @see https://blog.angular-university.io/angular-jwt/
    */
   login(userId: string, password: string) : Observable<boolean> {
-    let url = ClimateScienceService.BASE_URL + '/auth/login';
+    // POST /auth/login
+    let url = env.serviceUrl + '/auth/login';
     let auth = this.http.post<string>(url, {userId: userId, password: password}, {observe: "events"});
     let result = new Subject<boolean>();
     let _this = this;
@@ -64,12 +66,12 @@ export class ClimateScienceService {
             case HttpStatusCode.Ok:
               let jwt = resp.body;
               _this.setSession(jwt);
-              console.log("Authentication successful, Authorization: " + resp.body);
+              console.debug("Authentication successful, Authorization: " + resp.body);
               result.next(true);
               break;
             default:
               _this.setSession(null);
-              console.log("Authentication failed, status: " + resp.status);
+              console.debug("Authentication failed, status: " + resp.status);
               result.next(false);
               break;
           }
@@ -78,7 +80,7 @@ export class ClimateScienceService {
       },
       error(err) {
         _this.setSession(null);
-        console.log("Authentication failed, error: " + err);
+        console.debug("Authentication failed, error: " + err);
         result.next(false);
       }
     });
@@ -163,59 +165,90 @@ export class ClimateScienceService {
   }
 
   /**
+   * Initialises an HttpParams object, optionally creating it.
+   * @param params An optional HttpParams instance.
+   * @param name The parameter to set.
+   * @param value The value to set.
+   * @returns An HttpParams object with the specified parameter set.
+   */
+  private addParam(params = new HttpParams(), name : string, value? : string|number|boolean) : HttpParams {
+    if (value)
+      params = params.set(name, value);
+    return params;
+  }
+
+  /**
+   * Initialises an HttpParams object, optionally creating it.
+   * @param params An optional HttpParams instance.
+   * @param filter Optional user-defined filter string.
+   * @param start Optional start index.
+   * @param count Optional result set count.
+   * @returns An HttpParams object with the specified parameters set.
+   */
+  private addParams(params = new HttpParams(), filter? : string, start? : number, count? : number) : HttpParams {
+    if (filter && filter.length > 0)
+      params = params.set('filter', filter);
+    if (start && start > 0)
+      params = params.set('start', start);
+    if (count && count > 0)
+      params = params.set('count', count);
+    return params;
+  }
+
+  /**
    * Fetches a specified Person.
    * @param personId The ID of the Person to retrieve.
    * @return An Observable to deliver the requested Person.
    */
   getPersonById(personId: number) : Observable<Person> {
     // GET /person/{personId} => getPersonById(personId)
-    let url = ClimateScienceService.BASE_URL + "/person/" + personId;
+    let url = env.serviceUrl + "/person/" + personId;
     return this.http.get<Person>(url, ClimateScienceService.httpGetOptions);
   }
 
   /**
    * Fetches a paginated sub-list of Persons.
+   * @param filter User-defined search string.
    * @param start The index of the first Person to retrieve.
    * @param count The maximum number of Persons to retrieve.
    * @return An Observable to deliver the requested Persons.
    */
-  findPersons(start: number = 0, count: number = 10) : Observable<ResultSet<Person>> {
-    // GET /person/find?start=0&count=10 => findPersons(start, count)
-    let url = ClimateScienceService.BASE_URL + "/person/find";
-    return this.http.get<ResultSet<Person>>(url, {params: new HttpParams().set('start', start).set('count', count)});
+  findPersons(filter? : string, start = 0, count = 0) : Observable<ResultSet<Person>> {
+    // GET /person/find?filter=&start=0&count=0 => findPersons(filter, start, count)
+    let url = env.serviceUrl + "/person/find";
+    let params = this.addParams(undefined, filter, start, count);
+    return this.http.get<ResultSet<Person>>(url, {params: params});
   }
 
   /**
    * Fetches a paginated sub-list of Persons who are authors of a specified Publication.
    * @param publicationId The ID of the Publication whose authors are required.
+   * @param filter User-defined search string.
    * @param start The index of the first Person to retrieve.
    * @param count The maximum number of Persons to retrieve.
    * @return An Observable to deliver the requested Persons.
    */
-  findPersonsByPublication(publicationId?: number, start = 0, count = 10) : Observable<ResultSet<Person>> {
-    // GET /person/findByPublication?publicationId=0&start=0&count=10 => findPersonsByPublication(publicationId, start, count)
-    let url = ClimateScienceService.BASE_URL + "/person/findByPublication";
-    let params = new HttpParams();
-    if (publicationId)
-      params = params.set('publicationId', publicationId);
-    params = params.set('start', start).set('count', count);
+  findPersonsByPublication(publicationId?: number, filter? : string, start = 0, count = 0) : Observable<ResultSet<Person>> {
+    // GET /person/findByPublication?publicationId=0&filter=&start=0&count=0 => findPersonsByPublication(publicationId, filter, start, count)
+    let url = env.serviceUrl + "/person/findByPublication";
+    let params = this.addParam(undefined, 'publicationId', publicationId);
+    params = this.addParams(params, filter, start, count);
     return this.http.get<ResultSet<Person>>(url, {params: params});
   }
 
   /**
    * Fetches a paginated sub-list of Persons who are signatories to a specified Declaration.
    * @param declarationId The ID of the Declaration whose signatories are required.
+   * @param filter User-defined search string.
    * @param start The index of the first Person to retrieve.
    * @param count The maximum number of Persons to retrieve.
    * @return An Observable to deliver the requested Persons.
    */
-  findPersonsByDeclaration(declarationId?: number, start = 0, count = 10) : Observable<ResultSet<Person>> {
-    // GET /person/findByDeclaration?declarationId=0&start=0&count=10 => findPersonsByDeclaration(declarationId, start, count)
-    let url = ClimateScienceService.BASE_URL + "/person/findByDeclaration";
-    let params = new HttpParams();
-    if (declarationId)
-      params = params.set('declarationId', declarationId);
-    params = params.set('start', start).set('count', count);
+  findPersonsByDeclaration(declarationId?: number, filter? : string, start = 0, count = 0) : Observable<ResultSet<Person>> {
+    // GET /person/findByDeclaration?declarationId=0&filter=&start=0&count=0 => findPersonsByDeclaration(declarationId, filter, start, count)
+    let url = env.serviceUrl + "/person/findByDeclaration";
+    let params = this.addParam(undefined, 'declarationId', declarationId);
+    params = this.addParams(params, filter, start, count);
     return this.http.get<ResultSet<Person>>(url, {params: params});
   }
 
@@ -226,38 +259,38 @@ export class ClimateScienceService {
    */
   getPublicationById(publicationId: number) : Observable<Publication> {
     // GET /publication/{publicationId} => getPublicationById(publicationId)
-    let url = ClimateScienceService.BASE_URL + "/publication/" + publicationId;
+    let url = env.serviceUrl + "/publication/" + publicationId;
     return this.http.get<Publication>(url, ClimateScienceService.httpGetOptions);
   }
 
   /**
    * Fetches a paginated sub-list of Publications.
+   * @param filter User-defined search string.
    * @param start The index of the first Publication to retrieve.
    * @param count The maximum number of Publications to retrieve.
    * @return An Observable to deliver the requested Publications.
    */
-  findPublications(start: number = 0, count: number = 10) : Observable<ResultSet<Publication>> {
-    // GET /publication/find?start=0&count=10 => findPublications(start, count)
-    let url = ClimateScienceService.BASE_URL + "/publication/find";
-    return this.http.get<ResultSet<Publication>>(url, {params: new HttpParams().set('start', start).set('count', count)});
+  findPublications(filter? : string, start = 0, count = 0) : Observable<ResultSet<Publication>> {
+    // GET /publication/find?filter=&start=0&count=0 => findPublications(filter, start, count)
+    let url = env.serviceUrl + "/publication/find";
+    let params = this.addParams(undefined, filter, start, count);
+    return this.http.get<ResultSet<Publication>>(url, {params: params});
   }
 
   /**
    * Fetches a paginated sub-list of Publications authored by a specified Person.
    * @param personId The ID of the Person whose Publications are required.
+   * @param filter User-defined search string.
    * @param start The index of the first Publication to retrieve.
    * @param count The maximum number of Publications to retrieve.
    * @return An Observable to deliver the requested Publications.
    */
-  findPublicationsByAuthor(personId?: number, lastName?: string, start: number = 0, count: number = 10) : Observable<ResultSet<Publication>> {
-    // GET /publication/findByAuthor?personId=0&lastName=author&start=0&count=10 => findPublicationsByAuthor(personId, lastName, start, count)
-    let url = ClimateScienceService.BASE_URL + "/publication/findByAuthor";
-    let params = new HttpParams();
-    if (personId)
-      params = params.set('personId', personId);
-    if (lastName)
-      params = params.set('lastName', lastName);
-    params = params.set('start', start).set('count', count);
+  findPublicationsByAuthor(personId?: number, lastName?: string, filter? : string, start = 0, count = 0) : Observable<ResultSet<Publication>> {
+    // GET /publication/findByAuthor?personId=0&lastName=author&filter=&start=0&count=0 => findPublicationsByAuthor(personId, lastName, filter, start, count)
+    let url = env.serviceUrl + "/publication/findByAuthor";
+    let params = this.addParam(undefined, 'personId', personId);
+    params = this.addParam(params, 'lastName', lastName);
+    params = this.addParams(params, filter, start, count);
     return this.http.get<ResultSet<Publication>>(url, {params: params});
   }
 
@@ -268,70 +301,70 @@ export class ClimateScienceService {
    */
   getDeclarationById(declarationId: number) : Observable<Declaration> {
     // GET /declaration/{declarationId} => getDeclarationById(declarationId)
-    let url = ClimateScienceService.BASE_URL + "/declaration/" + declarationId;
+    let url = env.serviceUrl + "/declaration/" + declarationId;
     return this.http.get<Declaration>(url, ClimateScienceService.httpGetOptions);
   }
 
   /**
    * Fetches a paginated sub-list of Declarations.
+   * @param filter User-defined search string.
    * @param start The index of the first Declaration to retrieve.
    * @param count The maximum number of Declarations to retrieve.
    * @return An Observable to deliver the requested Declarations.
    */
-  findDeclarations(start: number = 0, count: number = 10) : Observable<ResultSet<Declaration>> {
-    // GET /declaration/find?start=0&count=10 => findDeclarations(start, count)
-    let url = ClimateScienceService.BASE_URL + "/declaration/find";
-    return this.http.get<ResultSet<Declaration>>(url, {params: new HttpParams().set('start', start).set('count', count)});
+  findDeclarations(filter? : string, start = 0, count = 0) : Observable<ResultSet<Declaration>> {
+    // GET /declaration/find?filter=&start=0&count=0 => findDeclarations(filter, start, count)
+    let url = env.serviceUrl + "/declaration/find";
+    let params = this.addParams(undefined, filter, start, count);
+    return this.http.get<ResultSet<Declaration>>(url, {params: params});
   }
 
   /**
    * Fetches a paginated sub-list of Declarations signed by a specified Person.
    * @param personId The ID of the Person whose Declarations are required.
    * @param lastName The specified Person's last name.
+   * @param filter User-defined search string.
    * @param start The index of the first Declaration to retrieve.
    * @param count The maximum number of Declarations to retrieve.
    * @return An Observable to deliver the requested Declarations.
    */
-  findDeclarationsBySignatory(personId? : number, lastName? : string, start: number = 0, count: number = 10) : Observable<ResultSet<Declaration>> {
-    // GET /declaration/find?start=0&count=10 => findDeclarations(start, count)
-    let url = ClimateScienceService.BASE_URL + "/declaration/findBySignatory";
-    let params = new HttpParams();
-    if (personId)
-      params = params.set('personId', personId);
-    if (lastName)
-      params = params.set('lastName', lastName);
-    params = params.set('start', start).set('count', count);
+  findDeclarationsBySignatory(personId? : number, lastName? : string, filter? : string, start = 0, count = 0) : Observable<ResultSet<Declaration>> {
+    // GET /declaration/find?filter=&start=0&count=0 => findDeclarations(filter, start, count)
+    let url = env.serviceUrl + "/declaration/findBySignatory";
+    let params = this.addParam(undefined, 'personId', personId);
+    params = this.addParam(params, 'lastName', lastName);
+    params = this.addParams(params, filter, start, count);
     return this.http.get<ResultSet<Declaration>>(url, {params: params});
   }
 
   /**
    * Fetches a paginated sub-list of Quotations.
+   * @param filter User-defined search string.
    * @param start The index of the first Quotation to retrieve.
    * @param count The maximum number of Quotations to retrieve.
    * @return An Observable to deliver the requested Quotations.
    */
-  findQuotations(start: number = 0, count: number = 10) : Observable<ResultSet<Quotation>> {
-    // GET /quotation/find?start=0&count=10 => findQuotations(start, count)
-    let url = ClimateScienceService.BASE_URL + "/quotation/find";
-    return this.http.get<ResultSet<Quotation>>(url, {params: new HttpParams().set('start', start).set('count', count)});
+  findQuotations(filter? : string, start = 0, count = 0) : Observable<ResultSet<Quotation>> {
+    // GET /quotation/find?filter=&start=0&count=0 => findQuotations(filter, start, count)
+    let url = env.serviceUrl + "/quotation/find";
+    let params = this.addParams(undefined, filter, start, count);
+    return this.http.get<ResultSet<Quotation>>(url, {params: params});
   }
 
   /**
    * Fetches a paginated sub-list of Quotations authored by a specified Person.
    * @param personId The ID of the Person whose Quotations are required.
+   * @param filter User-defined search string.
    * @param start The index of the first Quotation to retrieve.
    * @param count The maximum number of Quotations to retrieve.
    * @return An Observable to deliver the requested Quotations.
    */
-  findQuotationsByAuthor(personId? : number, lastName? : string, start: number = 0, count: number = 10) : Observable<ResultSet<Quotation>> {
-    // GET /quotation/find?start=0&count=10 => findQuotations(start, count)
-    let url = ClimateScienceService.BASE_URL + "/quotation/findByAuthor";
-    let params = new HttpParams();
-    if (personId)
-      params = params.set('personId', personId);
-    if (lastName)
-      params = params.set('lastName', lastName);
-    params = params.set('start', start).set('count', count);
+  findQuotationsByAuthor(personId? : number, lastName? : string, filter? : string, start = 0, count = 0) : Observable<ResultSet<Quotation>> {
+    // GET /quotation/findByAuthor?personId=0filter=&start=0&count=0 => findQuotationsByAuthor(start, count)
+    let url = env.serviceUrl + "/quotation/findByAuthor";
+    let params = this.addParam(undefined, 'personId', personId);
+    params = this.addParam(params, 'lastName', lastName);
+    params = this.addParams(params, filter, start, count);
     return this.http.get<ResultSet<Quotation>>(url, {params: params});
   }
 
@@ -343,7 +376,7 @@ export class ClimateScienceService {
    */
   linkQuotationAuthor(quotationId: number, personId?: number) : Observable<HttpEvent<void>> {
     // PATCH /quotation/{quotationId}?personId={personId} => linkQuotationAuthor(quotationId, personId)
-    let url = ClimateScienceService.BASE_URL + "/quotation/" + quotationId;
+    let url = env.serviceUrl + "/quotation/" + quotationId;
     let params = new HttpParams();
     if (personId)
       params = params.set('personId', personId);
@@ -358,7 +391,7 @@ export class ClimateScienceService {
    */
   createAuthorship(personId: number, publicationId: number) : Observable<HttpEvent<string>> {
     // PUT /authorship/{personId}/{publicationId} => createAuthorship(personId, publicationId)
-    let url = ClimateScienceService.BASE_URL + "/authorship/" + personId + "/" + publicationId;
+    let url = env.serviceUrl + "/authorship/" + personId + "/" + publicationId;
     return this.http.put<string>(url, null, {observe: "events"});
   }
 
@@ -370,7 +403,7 @@ export class ClimateScienceService {
    */
   deleteAuthorship(personId: number, publicationId: number) : Observable<HttpEvent<void>> {
     // DELETE /authorship/{personId}/{publicationId} => deleteAuthorship(personId, publicationId)
-    let url = ClimateScienceService.BASE_URL + "/authorship/" + personId + "/" + publicationId;
+    let url = env.serviceUrl + "/authorship/" + personId + "/" + publicationId;
     return this.http.delete<void>(url, {observe: "events"});
   }
 
@@ -382,7 +415,7 @@ export class ClimateScienceService {
    */
   createSignatory(personId: number, declarationId: number) : Observable<HttpEvent<string>> {
     // PUT /signatory/{personId}/{declarationId} => createSignatory(personId, declarationId)
-    let url = ClimateScienceService.BASE_URL + "/signatory/" + personId + "/" + declarationId;
+    let url = env.serviceUrl + "/signatory/" + personId + "/" + declarationId;
     return this.http.put<string>(url, null, {observe: "events"});
   }
 
@@ -394,7 +427,7 @@ export class ClimateScienceService {
    */
   deleteSignatory(personId: number, declarationId: number) : Observable<HttpEvent<void>> {
     // DELETE /signatory/{personId}/{declarationId} => deleteSignatory(personId, declarationId)
-    let url = ClimateScienceService.BASE_URL + "/signatory/" + personId + "/" + declarationId;
+    let url = env.serviceUrl + "/signatory/" + personId + "/" + declarationId;
     return this.http.delete<void>(url, {observe: "events"});
   }
 

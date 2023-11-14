@@ -26,13 +26,14 @@ export class QuotationDataSource extends AbstractDataSource<Quotation> {
 
   /**
    * Loads Quotations from the REST service.
+   * @param filter User-defined search string.
    * @param pageIndex The 0-based index of the page requested.
    * @param pageSize The number of items to load.
    */
-  loadQuotations(pageIndex = 0, pageSize = 10) {
+  loadQuotations(filter: string, pageIndex = 0, pageSize = 10) {
       this.loadingSubject.next(true);
 
-      let subscription = this.climateScienceService.findQuotations(pageIndex * pageSize, pageSize)
+      let subscription = this.climateScienceService.findQuotations(filter, pageIndex * pageSize, pageSize)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),
@@ -48,16 +49,17 @@ export class QuotationDataSource extends AbstractDataSource<Quotation> {
    * Loads Quotations from (or possibly from) the specified Person.
    * @param personId The ID of the specified Person.
    * @param lastName The specified Person's last name.
+   * @param filter User-defined search string.
    * @param pageIndex The 0-based index of the page requested.
    * @param pageSize The number of items to load.
    */
-  loadQuotationsByAuthor(personId? : number, lastName? : string, pageIndex = 0, pageSize = 10) {
+  loadQuotationsByAuthor(personId : number|undefined, lastName : string|undefined, filter: string, pageIndex = 0, pageSize = 10) {
     this.loadingSubject.next(true);
 
     if (this.climateScienceService.isLoggedOut())
       lastName = undefined;
     if (personId) {
-      let subscription = this.climateScienceService.findQuotationsByAuthor(personId, lastName, pageIndex * pageSize, pageSize)
+      let subscription = this.climateScienceService.findQuotationsByAuthor(personId, lastName, filter, pageIndex * pageSize, pageSize)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),

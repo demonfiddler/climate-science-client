@@ -32,12 +32,12 @@ export class PersonDataSource extends AbstractDataSource<Person> {
     this.loadingSubject.next(true);
 
     if (personId) {
-      this.climateScienceService.getPersonById(personId)
+      let subscription = this.climateScienceService.getPersonById(personId)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),
           tap(result => this.countSubject.next(result ? 1 : 0)),
-          finalize(() => this.loadingSubject.next(false))
+          finalize(() => {this.loadingSubject.next(false); subscription.unsubscribe()})
         )
         // Ditto re. instanceof and error TS2339.
         .subscribe(result => this.contentSubject.next(result instanceof Array ? [] : [result]));
@@ -48,19 +48,20 @@ export class PersonDataSource extends AbstractDataSource<Person> {
 
   /**
    * Loads Persons from the REST service.
+   * @param filter User-defined search string.
    * @param pageIndex The 0-based index of the page requested.
    * @param pageSize The number of items to load.
    */
-  loadPersons(pageIndex = 0, pageSize = 5) {
+  loadPersons(filter: string, pageIndex : number, pageSize : number) {
       this.loadingSubject.next(true);
 
-      this.climateScienceService.findPersons(pageIndex * pageSize, pageSize)
+      let subscription = this.climateScienceService.findPersons(filter, pageIndex * pageSize, pageSize)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),
           // The weird instanceof check is to circumvent compiler error TS2339 Property 'count' does not exist on type 'never[]'.
           tap(result => this.countSubject.next(result instanceof Array ? result.length : result.count)),
-          finalize(() => this.loadingSubject.next(false))
+          finalize(() => {this.loadingSubject.next(false); subscription.unsubscribe()})
         )
         // Ditto re. instanceof and error TS2339.
         .subscribe(result => this.contentSubject.next(result instanceof Array ? [] : result.records));
@@ -69,20 +70,21 @@ export class PersonDataSource extends AbstractDataSource<Person> {
   /**
    * Loads the Persons known to be authors of the specified Publication.
    * @param publicationId The ID of the specified Publication.
+   * @param filter User-defined search string.
    * @param pageIndex The 0-based index of the page requested.
    * @param pageSize The number of items to load.
    */
-  loadPersonsByPublication(publicationId? : number, pageIndex = 0, pageSize = 5) {
+  loadPersonsByPublication(publicationId : number|undefined, filter: string, pageIndex : number, pageSize : number) {
     this.loadingSubject.next(true);
 
     if (publicationId) {
-      let subscription = this.climateScienceService.findPersonsByPublication(publicationId, pageIndex * pageSize, pageSize)
+      let subscription = this.climateScienceService.findPersonsByPublication(publicationId, filter, pageIndex * pageSize, pageSize)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),
           // The weird instanceof check is to circumvent compiler error TS2339 Property 'count' does not exist on type 'never[]'.
           tap(result => this.countSubject.next(result instanceof Array ? result.length : result.count)),
-          finalize(() => this.loadingSubject.next(false))
+          finalize(() => {this.loadingSubject.next(false); subscription.unsubscribe()})
         )
         // Ditto re. instanceof and error TS2339.
         .subscribe(result => this.contentSubject.next(result instanceof Array ? [] : result.records));
@@ -94,14 +96,15 @@ export class PersonDataSource extends AbstractDataSource<Person> {
   /**
    * Loads the Persons known to be signatories of the specified Declaration.
    * @param declarationId The ID of the specified Declaration.
+   * @param filter User-defined search string.
    * @param pageIndex The 0-based index of the page requested.
    * @param pageSize The number of items to load.
    */
-  loadPersonsByDeclaration(declarationId? : number, pageIndex = 0, pageSize = 5) {
+  loadPersonsByDeclaration(declarationId : number|undefined, filter: string, pageIndex : number, pageSize : number) {
     this.loadingSubject.next(true);
 
     if (declarationId) {
-      let subscription = this.climateScienceService.findPersonsByDeclaration(declarationId, pageIndex * pageSize, pageSize)
+      let subscription = this.climateScienceService.findPersonsByDeclaration(declarationId, filter, pageIndex * pageSize, pageSize)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),

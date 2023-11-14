@@ -59,13 +59,13 @@ export class QuotationDetailComponent {
           // If the write operation succeeded, update the model to match the UI.
           if (this.quotation && this.person) {
             this.quotation.PERSON_ID = this.quotation.PERSON_ID ? undefined : this.person.ID;
-            console.debug(`Updated quotation.PERSON_ID to ${this.quotation.PERSON_ID}`);
+            // console.debug(`Updated quotation.PERSON_ID to ${this.quotation.PERSON_ID}`);
           }
           break;
         default:
           // If the write operation failed, update the UI to match the unchanged model.
           this.linkedCheckbox.toggle();
-          console.debug(`Reverted #linked to ${this.linkedCheckbox.checked}`);
+          // console.debug(`Reverted #linked to ${this.linkedCheckbox.checked}`);
       }
     }
   }

@@ -9,6 +9,13 @@
         <mat-spinner></mat-spinner>
     </div>
 
+    <mat-form-field #filters="matFormField" *ngIf="filters">
+        <mat-label>Filter</mat-label>
+        <input #input matInput="HTMLInputElement" (keyup)="applyFilter($event)" [disabled]="master == 'QUOTATIONS'" placeholder="Type text to search for">
+        <mat-icon matSuffix (click)="input.value = ''; clearFilter()">close</mat-icon>
+        <mat-hint>Value matched against all fields</mat-hint>
+    </mat-form-field>
+  
     <mat-table [dataSource]="dataSource" style="height: 300px; overflow-y: auto;">
         <ng-container matColumnDef="SELECTED">
             <mat-header-cell *matHeaderCellDef> Select </mat-header-cell>
@@ -58,6 +65,7 @@
             <td class="mat-cell" colspan="6">(no data found)</td>
         </tr>
     </mat-table>
+    <!-- Some of the examples use native table, th & td tags, but here the resulting table doesn't show any data. -->
     <!--<table mat-table [dataSource]="dataSource" style="height: 300px; overflow-y: auto;">
 
         <ng-container matColumnDef="TITLE">
@@ -104,4 +112,5 @@
         showFirstLastButtons
         aria-label="Select page">
     </mat-paginator>
+
 </div>

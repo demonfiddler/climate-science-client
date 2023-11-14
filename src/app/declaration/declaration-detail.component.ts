@@ -7,10 +7,10 @@
 import { Component, Input, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCheckbox, MatCheckboxModule } from '@angular/material/checkbox';
+import { HttpEvent, HttpResponse, HttpStatusCode } from '@angular/common/http';
 
 import { Person, Declaration } from '../shared/data-model';
 import { ClimateScienceService } from "../shared/climate-science.service";
-import { HttpEvent, HttpResponse, HttpStatusCode } from '@angular/common/http';
 
 /**
  * Displays details for a Declaration. Also supports explicit linking of signatory <@link Person}s to the selected {@link Declaration}.
@@ -63,13 +63,13 @@ export class DeclarationDetailComponent {
           // If the write operation succeeded, update the model to match the UI.
           if (this.declaration) {
             this.declaration.LINKED = !this.declaration.LINKED;
-            console.debug(`Updated declaration.LINKED to ${this.declaration.LINKED}`);
+            // console.debug(`Updated declaration.LINKED to ${this.declaration.LINKED}`);
           }
           break;
         default:
           // If the write operation failed, update the UI to match the unchanged model.
           this.linkedCheckbox.toggle();
-          console.debug(`Reverted #linked to ${this.linkedCheckbox.checked}`);
+          // console.debug(`Reverted #linked to ${this.linkedCheckbox.checked}`);
       }
     }
   }
