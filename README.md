@@ -1,6 +1,6 @@
 # Climate Science Client
 
-A climate science web application written in Angular. See also the [REST service](/demonfiddler/climate-science-server).
+A climate science web application written in Angular. See also the [REST service](https://github.com/demonfiddler/climate-science-server).
 This project was generated with [Angular CLI](/angular/angular-cli) version 16.2.9.
 
 ## Development server
