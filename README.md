@@ -1,11 +1,14 @@
 # Climate Science Client
 
-A climate science web application written in Angular. See also the [REST service](../climate-science-server/).
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.9.
+A climate science web application written in Angular. See also the [REST service](/demonfiddler/climate-science-server/).
+This project was generated with [Angular CLI](/angular/angular-cli) version 16.2.9.
 
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+
+## Production server
+Navigate to `https://campaignr-resources.org/climaet-science-client/`.
 
 ## Code scaffolding
 
@@ -13,7 +16,7 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Run `ng build  --base-href /climate-science-client/` to build the project. The build artifacts will be stored in the `dist/` directory.
 
 ## Running unit tests
 
