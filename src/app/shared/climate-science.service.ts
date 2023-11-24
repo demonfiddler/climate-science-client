@@ -9,7 +9,7 @@ import { HttpClient, HttpEvent, HttpHeaders, HttpParams, HttpResponse, HttpStatu
 import { Observable, Subject } from 'rxjs';
 import { DateTime } from 'luxon';
 
-import { Person, Publication, Declaration, Quotation, ResultSet } from './data-model';
+import { Person, Publication, Declaration, Quotation, Statistic, ResultSet } from './data-model';
 import { base64UrlDecode } from './utils';
 import { environment as env } from '../../environments/environment';
 
@@ -366,6 +366,21 @@ export class ClimateScienceService {
     params = this.addParam(params, 'lastName', lastName);
     params = this.addParams(params, filter, start, count);
     return this.http.get<ResultSet<Quotation>>(url, {params: params});
+  }
+
+  /**
+   * Fetches a paginated sub-list of database Statistics.
+   * @param topic The topic for which Statistics are requested.
+   * @param start The index of the first Statistic to retrieve.
+   * @param count The maximum number of Statistics to retrieve.
+   * @returns An Observable to deliver the requested Statistics.
+   */
+  findStatistics(topic : string, start = 0, count = 0) : Observable<ResultSet<Statistic>> {
+    // GET /statistics/find?topic=climate&start=0&count=0 => findStatistics(topic, start, count)
+    let url = env.serviceUrl + "/statistics/find";
+    let params = this.addParam(undefined, 'topic', topic);
+    params = this.addParams(params, undefined, start, count);
+    return this.http.get<ResultSet<Statistic>>(url, {params: params});
   }
 
   /**

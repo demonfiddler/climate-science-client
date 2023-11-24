@@ -77,6 +77,15 @@ export interface Quotation extends Entity {
 }
 
 /**
+ * An object representing a single database metric.
+ */
+export interface Statistic {
+    CATEGORY: string;
+    COUNT: number;
+    DESCRIPTION: string;
+}
+
+/**
  * Describes the form of a paginated result set returned by the REST service.
  */
 export interface ResultSet<Type> {

@@ -1,0 +1,37 @@
+<!--
+    Climate Science Client: an Angular web app for querying a climate science database via a REST service.
+    Copyright © 2023 Adrian Price. All rights reserved.
+    Licensed under the GNU Affero General Public License v.3 https://www.gnu.org/licenses/agpl-3.0.html
+-->
+<div class="mat-elevation-z8 container">
+
+    <div class="spinner-container" *ngIf="dataSource.loading$ | async">
+        <mat-spinner></mat-spinner>
+    </div>
+
+    <mat-table [dataSource]="dataSource" style="height: 300px; overflow-y: auto;">
+
+        <ng-container matColumnDef="CATEGORY">
+            <mat-header-cell *matHeaderCellDef> Category </mat-header-cell>
+            <mat-cell *matCellDef="let statistic"> {{statistic.CATEGORY}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="COUNT">
+            <mat-header-cell *matHeaderCellDef> Count </mat-header-cell>
+            <mat-cell *matCellDef="let statistic"> {{statistic.COUNT}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="DESCRIPTION">
+            <mat-header-cell *matHeaderCellDef> Description </mat-header-cell>
+            <mat-cell *matCellDef="let statistic"> {{statistic.DESCRIPTION}} </mat-cell>
+        </ng-container>    
+
+        <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+        <mat-row *matRowDef="let statistic; columns: displayedColumns;"></mat-row>
+        <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="3">(no data found)</td>
+        </tr>
+
+    </mat-table>
+
+</div>

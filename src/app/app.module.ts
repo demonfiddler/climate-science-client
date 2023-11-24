@@ -35,6 +35,7 @@ import { DeclarationsComponent } from './declaration/declarations.component';
 import { DeclarationDetailComponent } from './declaration/declaration-detail.component';
 import { QuotationsComponent } from './quotation/quotations.component';
 import { QuotationDetailComponent } from './quotation/quotation-detail.component';
+import { StatisticsComponent } from './statistics/statistics.component';
 import { httpInterceptorProviders } from './shared/http-interceptors';
 
 /**
@@ -72,6 +73,7 @@ import { httpInterceptorProviders } from './shared/http-interceptors';
     DeclarationDetailComponent,
     QuotationsComponent,
     QuotationDetailComponent,
+    StatisticsComponent,
     NgbModule,
   ],
   providers: [
