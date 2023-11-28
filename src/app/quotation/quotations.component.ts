@@ -7,6 +7,7 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -30,6 +31,7 @@ import { Master } from '../shared/utils';
   standalone: true,
   imports: [
     CommonModule,
+    MatToolbarModule,
     MatTableModule,
     MatCheckboxModule,
     MatPaginatorModule,

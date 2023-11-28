@@ -23,13 +23,14 @@ import { ClimateScienceService } from "./climate-science.service";
 export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 
   @Input() master: string = "NONE";
-  @Input() filters: boolean = false;
+  @Input() toolbars: boolean = false;
   @Output() selectionChange = new EventEmitter<T>(true);
   dataSource: AbstractDataSource<T>;
   displayedColumns: string[];
   selectionModel = new SelectionModel<T>(false, []);
   countSubscription: Subscription;
   @ViewChild(MatPaginator) paginator: MatPaginator;
+  filterInput : HTMLInputElement;
   paginatorSubscription: Subscription;
   filter : string = '';
   private filter$ = new Subject<string>();
@@ -70,24 +71,31 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
 
   /**
    * Applies a user-supplied filter string.
-   * @param event The key-up event.
+   * @param e The key-up event.
    */
-  applyFilter(event: Event) {
-    const filter = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    this.filter$.next(filter);
+  applyFilter(e: KeyboardEvent) {
+    this.filterInput = e.target as HTMLInputElement;
+    if (e.key == 'Escape') {
+      this.clearFilter();
+    } else {
+      const filter = this.filterInput.value.trim().toLowerCase();
+      this.filter$.next(filter);
+    }
   }
 
   /**
-   * Clears any filter string and reloads the data.
+   * Clears any filter string and selection then reloads the data.
    */
   clearFilter() {
+    this.filterInput.value = '';
     this.filter='';
+    this.selectionModel.clear();
     this._loadData();
   }
 
   /**
    * Implementations can create their data source and load the initial data.
-   * Implementations must call super.ngOnInit().
+   * Overrides must call super.ngOnInit().
    * @inheritdoc 
    * @override
    * @virtual
@@ -98,6 +106,7 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
       distinctUntilChanged()
     ).subscribe(filter => {
       this.filter = filter;
+      this.selectionModel.clear();
       this._loadData();
     });
   }
@@ -108,11 +117,13 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
    * @override
    */
   ngAfterViewInit() {
-    this.countSubscription = this.dataSource.count$.subscribe(count => this.paginator.length = count);
-    this.paginatorSubscription = this.paginator.page.subscribe(() => {
-      this.selectionModel.clear(true);
-      this._loadData();
-    });
+    if (this.paginator) {
+      this.countSubscription = this.dataSource.count$.subscribe(count => this.paginator.length = count);
+      this.paginatorSubscription = this.paginator.page.subscribe(() => {
+        this.selectionModel.clear(true);
+        this._loadData();
+      });
+    }
   }
 
   /**
@@ -160,7 +171,7 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
    * Passes any user-defined search text to include in query predicates.
    */
   protected _loadData() : void {
-    this.loadData(this.filters ? this.filter : '');
+    this.loadData(this.toolbars ? this.filter : '');
   }
 
   /**
@@ -186,6 +197,13 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
    */
   getLastName(person : Person | undefined) : string | undefined {
     return person ? person.LAST_NAME : undefined;
+  }
+
+  /**
+   * Reloads the list using current paginator settings.
+   */
+  reload() : void {
+    this._loadData();
   }
 
 }

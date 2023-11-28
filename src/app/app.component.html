@@ -35,7 +35,7 @@
       </fieldset>
       <fieldset>
         <legend>Options</legend>
-        <mat-checkbox #filters="matCheckbox">Show filters</mat-checkbox>
+        <mat-checkbox #toolbars="matCheckbox">Show toolbars</mat-checkbox>
       </fieldset>
       </mat-card-actions>
   </mat-card>
@@ -54,7 +54,7 @@
       </mat-expansion-panel-header>
       <app-persons
         [master]="master.value"
-        [filters]="filters.checked"
+        [toolbars]="toolbars.checked"
         [publication]="publication"
         [declaration]="declaration"
         [quotation]="quotation"
@@ -85,7 +85,7 @@
       </mat-expansion-panel-header>
       <app-publications
         [master]="master.value"
-        [filters]="filters.checked"
+        [toolbars]="toolbars.checked"
         [person]="person"
         [declaration]="declaration"
         [quotation]="quotation"
@@ -120,7 +120,7 @@
         </mat-expansion-panel-header>
         <app-declarations
           [master]="master.value"
-          [filters]="filters.checked"
+          [toolbars]="toolbars.checked"
           [person]="person"
           [publication]="publication"
           [quotation]="quotation"
@@ -155,7 +155,7 @@
         </mat-expansion-panel-header>
         <app-quotations
           [master]="master.value"
-          [filters]="filters.checked"
+          [toolbars]="toolbars.checked"
           [person]="person"
           (selectionChange)="quotation=$event">
         </app-quotations>
@@ -186,7 +186,7 @@
             List of statistics
           </mat-panel-description>
         </mat-expansion-panel-header>
-        <app-statistics></app-statistics>
+        <app-statistics [toolbars]="toolbars.checked"></app-statistics>
       </mat-expansion-panel>
   </mat-accordion>
 

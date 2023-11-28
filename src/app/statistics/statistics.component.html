@@ -3,7 +3,16 @@
     Copyright © 2023 Adrian Price. All rights reserved.
     Licensed under the GNU Affero General Public License v.3 https://www.gnu.org/licenses/agpl-3.0.html
 -->
-<div class="mat-elevation-z8 container">
+<div class="mat-elevation-z8 container" onkeypress="onKeyDown">
+
+    <mat-toolbar *ngIf="toolbars">
+        <span class="spacer"></span>
+        <!-- This is example code for MatButton but it doesn't seem to work inside a MatToolbar.
+        <button mat-mini-fab aria-label="Refresh button" class="button-container" (click)="reload()">
+            <mat-icon>refresh</mat-icon>
+        </button>-->
+        <mat-icon title="Reload current list" (click)="reload()">refresh</mat-icon>
+    </mat-toolbar>
 
     <div class="spinner-container" *ngIf="dataSource.loading$ | async">
         <mat-spinner></mat-spinner>

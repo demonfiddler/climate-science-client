@@ -4,7 +4,7 @@
  * Licensed under the GNU Affero General Public License v.3 https://www.gnu.org/licenses/agpl-3.0.html
  */
 
- table {
+table {
     width: 100%;
 }
 
@@ -34,4 +34,36 @@
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1;
+}
+
+.spacer {
+    flex: 1 1 auto;
+}
+
+/*
+.button-row {
+    display: table-cell;
+    max-width: 600px;
+}
+  
+.button-row .mat-mdc-button-base {
+    margin: 8px 8px 8px 0;
+}
+  
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+  
+.button-container {
+    display: flex;
+    justify-content: center;
+    width: 120px;
+}
+*/
+
+.button-container {
+    display: flex;
+    justify-content: center;
 }
