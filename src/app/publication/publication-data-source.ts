@@ -56,8 +56,6 @@ export class PublicationDataSource extends AbstractDataSource<Publication> {
   loadPublicationsByAuthor(personId : number|undefined, lastName : string|undefined, filter: string, pageIndex = 0, pageSize = 10) {
     this.loadingSubject.next(true);
 
-    if (this.climateScienceService.isLoggedOut())
-      lastName = undefined;
     if (personId) {
       let subscription = this.climateScienceService.findPublicationsByAuthor(personId, lastName, filter, pageIndex * pageSize, pageSize)
         .pipe(

@@ -56,8 +56,6 @@ export class DeclarationDataSource extends AbstractDataSource<Declaration> {
   loadDeclarationsBySignatory(personId : number|undefined, lastName : string|undefined, filter: string, pageIndex : number, pageSize : number) {
     this.loadingSubject.next(true);
 
-    if (this.climateScienceService.isLoggedOut())
-      lastName = undefined;
     if (personId) {
       let subscription = this.climateScienceService.findDeclarationsBySignatory(personId, lastName, filter, pageIndex * pageSize, pageSize)
         .pipe(

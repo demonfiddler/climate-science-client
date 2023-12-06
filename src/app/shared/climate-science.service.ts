@@ -11,6 +11,7 @@ import { DateTime } from 'luxon';
 
 import { Person, Publication, Declaration, Quotation, Statistic, ResultSet } from './data-model';
 import { base64UrlDecode } from './utils';
+import * as paths  from './paths';
 import { environment as env } from '../../environments/environment';
 
 const JWT_EXPIRY = 'jwt_expiry';
@@ -54,7 +55,7 @@ export class ClimateScienceService {
    */
   login(userId: string, password: string) : Observable<boolean> {
     // POST /auth/login
-    let url = env.serviceUrl + '/auth/login';
+    let url = `${env.serviceUrl}${paths.AUTH_LOGIN}`;
     let auth = this.http.post<string>(url, {userId: userId, password: password}, {observe: "events"});
     let result = new Subject<boolean>();
     let _this = this;
@@ -202,7 +203,7 @@ export class ClimateScienceService {
    */
   getPersonById(personId: number) : Observable<Person> {
     // GET /person/{personId} => getPersonById(personId)
-    let url = env.serviceUrl + "/person/" + personId;
+    let url = `${env.serviceUrl}${paths.PERSON}/${personId}`;
     return this.http.get<Person>(url, ClimateScienceService.httpGetOptions);
   }
 
@@ -215,7 +216,7 @@ export class ClimateScienceService {
    */
   findPersons(filter? : string, start = 0, count = 0) : Observable<ResultSet<Person>> {
     // GET /person/find?filter=&start=0&count=0 => findPersons(filter, start, count)
-    let url = env.serviceUrl + "/person/find";
+    let url = `${env.serviceUrl}${paths.PERSON_FIND}`;
     let params = this.addParams(undefined, filter, start, count);
     return this.http.get<ResultSet<Person>>(url, {params: params});
   }
@@ -230,7 +231,7 @@ export class ClimateScienceService {
    */
   findPersonsByPublication(publicationId?: number, filter? : string, start = 0, count = 0) : Observable<ResultSet<Person>> {
     // GET /person/findByPublication?publicationId=0&filter=&start=0&count=0 => findPersonsByPublication(publicationId, filter, start, count)
-    let url = env.serviceUrl + "/person/findByPublication";
+    let url = `${env.serviceUrl}${paths.PERSON_FIND_BY_PUBLICATION}`;
     let params = this.addParam(undefined, 'publicationId', publicationId);
     params = this.addParams(params, filter, start, count);
     return this.http.get<ResultSet<Person>>(url, {params: params});
@@ -246,7 +247,7 @@ export class ClimateScienceService {
    */
   findPersonsByDeclaration(declarationId?: number, filter? : string, start = 0, count = 0) : Observable<ResultSet<Person>> {
     // GET /person/findByDeclaration?declarationId=0&filter=&start=0&count=0 => findPersonsByDeclaration(declarationId, filter, start, count)
-    let url = env.serviceUrl + "/person/findByDeclaration";
+    let url = `${env.serviceUrl}${paths.PERSON_FIND_BY_DECLARATION}`;
     let params = this.addParam(undefined, 'declarationId', declarationId);
     params = this.addParams(params, filter, start, count);
     return this.http.get<ResultSet<Person>>(url, {params: params});
@@ -259,7 +260,7 @@ export class ClimateScienceService {
    */
   getPublicationById(publicationId: number) : Observable<Publication> {
     // GET /publication/{publicationId} => getPublicationById(publicationId)
-    let url = env.serviceUrl + "/publication/" + publicationId;
+    let url = `${env.serviceUrl}${paths.PUBLICATION}/${publicationId}`;
     return this.http.get<Publication>(url, ClimateScienceService.httpGetOptions);
   }
 
@@ -272,7 +273,7 @@ export class ClimateScienceService {
    */
   findPublications(filter? : string, start = 0, count = 0) : Observable<ResultSet<Publication>> {
     // GET /publication/find?filter=&start=0&count=0 => findPublications(filter, start, count)
-    let url = env.serviceUrl + "/publication/find";
+    let url = `${env.serviceUrl}${paths.PUBLICATION_FIND}`;
     let params = this.addParams(undefined, filter, start, count);
     return this.http.get<ResultSet<Publication>>(url, {params: params});
   }
@@ -287,7 +288,7 @@ export class ClimateScienceService {
    */
   findPublicationsByAuthor(personId?: number, lastName?: string, filter? : string, start = 0, count = 0) : Observable<ResultSet<Publication>> {
     // GET /publication/findByAuthor?personId=0&lastName=author&filter=&start=0&count=0 => findPublicationsByAuthor(personId, lastName, filter, start, count)
-    let url = env.serviceUrl + "/publication/findByAuthor";
+    let url = `${env.serviceUrl}${paths.PUBLICATION_FIND_BY_AUTHOR}`;
     let params = this.addParam(undefined, 'personId', personId);
     params = this.addParam(params, 'lastName', lastName);
     params = this.addParams(params, filter, start, count);
@@ -301,7 +302,7 @@ export class ClimateScienceService {
    */
   getDeclarationById(declarationId: number) : Observable<Declaration> {
     // GET /declaration/{declarationId} => getDeclarationById(declarationId)
-    let url = env.serviceUrl + "/declaration/" + declarationId;
+    let url = `${env.serviceUrl}${paths.DECLARATION}/${declarationId}`;
     return this.http.get<Declaration>(url, ClimateScienceService.httpGetOptions);
   }
 
@@ -314,7 +315,7 @@ export class ClimateScienceService {
    */
   findDeclarations(filter? : string, start = 0, count = 0) : Observable<ResultSet<Declaration>> {
     // GET /declaration/find?filter=&start=0&count=0 => findDeclarations(filter, start, count)
-    let url = env.serviceUrl + "/declaration/find";
+    let url = `${env.serviceUrl}${paths.DECLARATION_FIND}`;
     let params = this.addParams(undefined, filter, start, count);
     return this.http.get<ResultSet<Declaration>>(url, {params: params});
   }
@@ -330,7 +331,7 @@ export class ClimateScienceService {
    */
   findDeclarationsBySignatory(personId? : number, lastName? : string, filter? : string, start = 0, count = 0) : Observable<ResultSet<Declaration>> {
     // GET /declaration/find?filter=&start=0&count=0 => findDeclarations(filter, start, count)
-    let url = env.serviceUrl + "/declaration/findBySignatory";
+    let url = `${env.serviceUrl}${paths.DECLARATION_FIND_BY_SIGNATORY}`;
     let params = this.addParam(undefined, 'personId', personId);
     params = this.addParam(params, 'lastName', lastName);
     params = this.addParams(params, filter, start, count);
@@ -346,7 +347,7 @@ export class ClimateScienceService {
    */
   findQuotations(filter? : string, start = 0, count = 0) : Observable<ResultSet<Quotation>> {
     // GET /quotation/find?filter=&start=0&count=0 => findQuotations(filter, start, count)
-    let url = env.serviceUrl + "/quotation/find";
+    let url = `${env.serviceUrl}${paths.QUOTATION_FIND}`;
     let params = this.addParams(undefined, filter, start, count);
     return this.http.get<ResultSet<Quotation>>(url, {params: params});
   }
@@ -361,7 +362,7 @@ export class ClimateScienceService {
    */
   findQuotationsByAuthor(personId? : number, lastName? : string, filter? : string, start = 0, count = 0) : Observable<ResultSet<Quotation>> {
     // GET /quotation/findByAuthor?personId=0filter=&start=0&count=0 => findQuotationsByAuthor(start, count)
-    let url = env.serviceUrl + "/quotation/findByAuthor";
+    let url = `${env.serviceUrl}${paths.QUOTATION_FIND_BY_AUTHOR}`;
     let params = this.addParam(undefined, 'personId', personId);
     params = this.addParam(params, 'lastName', lastName);
     params = this.addParams(params, filter, start, count);
@@ -377,7 +378,7 @@ export class ClimateScienceService {
    */
   findStatistics(topic : string, start = 0, count = 0) : Observable<ResultSet<Statistic>> {
     // GET /statistics/find?topic=climate&start=0&count=0 => findStatistics(topic, start, count)
-    let url = env.serviceUrl + "/statistics/find";
+    let url = `${env.serviceUrl}${paths.STATISTICS_FIND}`;
     let params = this.addParam(undefined, 'topic', topic);
     params = this.addParams(params, undefined, start, count);
     return this.http.get<ResultSet<Statistic>>(url, {params: params});
@@ -391,7 +392,7 @@ export class ClimateScienceService {
    */
   linkQuotationAuthor(quotationId: number, personId?: number) : Observable<HttpEvent<void>> {
     // PATCH /quotation/{quotationId}?personId={personId} => linkQuotationAuthor(quotationId, personId)
-    let url = env.serviceUrl + "/quotation/" + quotationId;
+    let url = `${env.serviceUrl}${paths.QUOTATION}/${quotationId}`;
     let params = new HttpParams();
     if (personId)
       params = params.set('personId', personId);
@@ -406,7 +407,7 @@ export class ClimateScienceService {
    */
   createAuthorship(personId: number, publicationId: number) : Observable<HttpEvent<string>> {
     // PUT /authorship/{personId}/{publicationId} => createAuthorship(personId, publicationId)
-    let url = env.serviceUrl + "/authorship/" + personId + "/" + publicationId;
+    let url = `${env.serviceUrl}${paths.AUTHORSHIP}/${personId}/${publicationId}`;
     return this.http.put<string>(url, null, {observe: "events"});
   }
 
@@ -418,7 +419,7 @@ export class ClimateScienceService {
    */
   deleteAuthorship(personId: number, publicationId: number) : Observable<HttpEvent<void>> {
     // DELETE /authorship/{personId}/{publicationId} => deleteAuthorship(personId, publicationId)
-    let url = env.serviceUrl + "/authorship/" + personId + "/" + publicationId;
+    let url = `${env.serviceUrl}${paths.AUTHORSHIP}/${personId}/${publicationId}`;
     return this.http.delete<void>(url, {observe: "events"});
   }
 
@@ -430,7 +431,7 @@ export class ClimateScienceService {
    */
   createSignatory(personId: number, declarationId: number) : Observable<HttpEvent<string>> {
     // PUT /signatory/{personId}/{declarationId} => createSignatory(personId, declarationId)
-    let url = env.serviceUrl + "/signatory/" + personId + "/" + declarationId;
+    let url = `${env.serviceUrl}${paths.SIGNATORY}/${personId}/${declarationId}`;
     return this.http.put<string>(url, null, {observe: "events"});
   }
 
@@ -442,7 +443,7 @@ export class ClimateScienceService {
    */
   deleteSignatory(personId: number, declarationId: number) : Observable<HttpEvent<void>> {
     // DELETE /signatory/{personId}/{declarationId} => deleteSignatory(personId, declarationId)
-    let url = env.serviceUrl + "/signatory/" + personId + "/" + declarationId;
+    let url = `${env.serviceUrl}${paths.SIGNATORY}/${personId}/${declarationId}`;
     return this.http.delete<void>(url, {observe: "events"});
   }
 

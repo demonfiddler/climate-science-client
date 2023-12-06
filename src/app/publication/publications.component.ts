@@ -13,13 +13,16 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule, MatHint } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatIconModule, MatIcon } from '@angular/material/icon'; 
+import { MatIconModule, MatIcon } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 
+import { environment as env } from '../../environments/environment';
 import { Person, Publication, Declaration, Quotation } from '../shared/data-model';
 import { PublicationDataSource } from './publication-data-source';
 import { ClimateScienceService } from "../shared/climate-science.service";
 import { AbstractTableComponent } from '../shared/abstract-table.component';
 import { Master } from '../shared/utils';
+import * as paths  from '../shared/paths';
 
 /**
  * A component for displaying a paginated list of Publications.
@@ -39,6 +42,7 @@ import { Master } from '../shared/utils';
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
+    MatMenuModule,
   ],
 })
 export class PublicationsComponent extends AbstractTableComponent<Publication> {
@@ -110,6 +114,42 @@ export class PublicationsComponent extends AbstractTableComponent<Publication> {
           break;
       }
     }
+  }
+
+  /**
+   * Returns the URL to download the current list in the specified format.
+   * @param contentType The MIME content type to request.
+   * @returns The requested download URL.
+   */
+  getDownloadUrl(contentType: string) : string {
+    let url;
+    if (this.master) {
+      url = env.serviceUrl;
+      let paramAdded = false;
+      switch (this.master) {
+        case Master.None:
+        case Master.Publications:
+          url += paths.PUBLICATION_FIND;
+          break;
+        case Master.Persons:
+          let personId = this.getEntityId(this.person);
+          let lastName = this.getLastName(this.person);
+          url += `${paths.PUBLICATION_FIND_BY_AUTHOR}?personId=${personId}`;
+          if (lastName)
+            url += `&lastName=${lastName}`;
+          paramAdded = true;
+        }
+        if (this.filter) {
+          let sep = paramAdded ? '&' : '?';
+          url += `${sep}filter=${this.filter}`;
+          paramAdded = true;
+        }
+        let sep = paramAdded ? '&' : '?';
+        url += `${sep}contentType=${contentType}`;
+    } else {
+      url = '';
+    }
+    return url;
   }
 
 }

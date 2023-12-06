@@ -13,14 +13,15 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon'; 
-import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 
+import { environment as env } from '../../environments/environment';
 import { Statistic } from '../shared/data-model';
 import { StatisticsDataSource } from '../statistics/statistics-data-source';
 import { ClimateScienceService } from "../shared/climate-science.service";
 import { AbstractTableComponent } from '../shared/abstract-table.component';
-import { Master } from '../shared/utils';
+import * as paths  from '../shared/paths';
 
 /**
  * A component for displaying a paginated list of Statistics.
@@ -40,6 +41,7 @@ import { Master } from '../shared/utils';
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
+    MatMenuModule,
   ],
 })
 export class StatisticsComponent extends AbstractTableComponent<Statistic> {
@@ -90,6 +92,15 @@ export class StatisticsComponent extends AbstractTableComponent<Statistic> {
     if (this.dataSource && this.master) {
       this.dataSource.loadStatistics('climate', 0, 0);
     }
+  }
+
+  /**
+   * Returns the URL to download the current list in the specified format.
+   * @param contentType The MIME content type to request.
+   * @returns The requested download URL.
+   */
+  getDownloadUrl(contentType: string) : string {
+    return `${env.serviceUrl}${paths.STATISTICS_FIND}?topic=climate&contentType=${contentType}`;
   }
 
 }

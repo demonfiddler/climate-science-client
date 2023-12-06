@@ -191,12 +191,12 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
   }
 
   /**
-   * Returns the last name of a (possibly undefined) Person.
+   * Returns the last name of a (possibly undefined) Person, if the current user is authenticated.
    * @param person The Person whose last name is required.
-   * @return The Person's last name or undefined if no Person was passed.
+   * @return The Person's last name or undefined if no Person was passed or current user is unauthenticated.
    */
   getLastName(person : Person | undefined) : string | undefined {
-    return person ? person.LAST_NAME : undefined;
+    return person && this.climateScienceService.isLoggedIn() ? person.LAST_NAME : undefined;
   }
 
   /**

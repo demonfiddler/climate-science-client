@@ -56,8 +56,6 @@ export class QuotationDataSource extends AbstractDataSource<Quotation> {
   loadQuotationsByAuthor(personId : number|undefined, lastName : string|undefined, filter: string, pageIndex = 0, pageSize = 10) {
     this.loadingSubject.next(true);
 
-    if (this.climateScienceService.isLoggedOut())
-      lastName = undefined;
     if (personId) {
       let subscription = this.climateScienceService.findQuotationsByAuthor(personId, lastName, filter, pageIndex * pageSize, pageSize)
         .pipe(

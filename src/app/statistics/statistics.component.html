@@ -7,10 +7,11 @@
 
     <mat-toolbar *ngIf="toolbars">
         <span class="spacer"></span>
-        <!-- This is example code for MatButton but it doesn't seem to work inside a MatToolbar.
-        <button mat-mini-fab aria-label="Refresh button" class="button-container" (click)="reload()">
-            <mat-icon>refresh</mat-icon>
-        </button>-->
+        <mat-icon #exportTrigger [matMenuTriggerFor]="exportMenu" aria-hidden="false" aria-label="Export List" fontIcon="download" style="font-size: 1.5rem" title="Download as..."></mat-icon>
+        <mat-menu #exportMenu="matMenu">
+          <a mat-menu-item [href]="getDownloadUrl('text/csv')" download="statistics.csv" type="text/csv">Download as CSV</a>
+          <a mat-menu-item [href]="getDownloadUrl('application/pdf')" download="statistics.pdf" type="application/pdf">Download as PDF</a>
+        </mat-menu>
         <mat-icon title="Reload current list" (click)="reload()">refresh</mat-icon>
     </mat-toolbar>
 

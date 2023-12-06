@@ -11,16 +11,19 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatFormFieldModule, MatHint } from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatIconModule, MatIcon } from '@angular/material/icon'; 
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 
+import { environment as env } from '../../environments/environment';
 import { Person, Publication, Declaration, Quotation } from '../shared/data-model';
 import { PersonDataSource } from './person-data-source';
 import { ClimateScienceService } from "../shared/climate-science.service";
 import { AbstractTableComponent } from '../shared/abstract-table.component';
 import { NgbRating } from '@ng-bootstrap/ng-bootstrap';
 import { Master } from '../shared/utils';
+import * as paths  from '../shared/paths';
 
 /**
  * A component for displaying a paginated list of Persons.
@@ -40,6 +43,7 @@ import { Master } from '../shared/utils';
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
+    MatMenuModule,
     NgbRating,
   ],
 })
@@ -103,7 +107,6 @@ export class PersonsComponent extends AbstractTableComponent<Person> {
    * @override
    */
   loadData(filter: string) {
-    // console.debug(this.componentName() + ".loadData(" + filter + ')');
     if (this.dataSource && this.master) {
       switch (this.master) {
         case Master.None:
@@ -121,6 +124,49 @@ export class PersonsComponent extends AbstractTableComponent<Person> {
           break;
         }
     }
+  }
+
+  /**
+   * Returns the URL to download the current list in the specified format.
+   * @param contentType The MIME content type to request.
+   * @returns The requested download URL.
+   */
+  getDownloadUrl(contentType: string) : string {
+    let url;
+    if (this.master) {
+      url = env.serviceUrl;
+      let paramAdded = false;
+      switch (this.master) {
+        case Master.None:
+        case Master.Persons:
+          url += paths.PERSON_FIND;
+          break;
+        case Master.Publications:
+          let publicationId = this.getEntityId(this.publication);
+          url += `${paths.PERSON_FIND_BY_PUBLICATION}?publicationId=${publicationId}`;
+          paramAdded = true;
+          break;
+        case Master.Declarations:
+          let declarationId = this.getEntityId(this.declaration);
+          url += `${paths.PERSON_FIND_BY_DECLARATION}?declarationId=${declarationId}`;
+          paramAdded = true;
+          break;
+        case Master.Quotations:
+          let personId = this.quotation ? this.quotation.PERSON_ID : undefined;
+          url += `${paths.PERSON}/${personId}`;
+          break;
+      }
+      if (this.filter) {
+        let sep = paramAdded ? '&' : '?';
+        url += `${sep}filter=${this.filter}`;
+        paramAdded = true;
+      }
+      let sep = paramAdded ? '&' : '?';
+      url += `${sep}contentType=${contentType}`;
+    } else {
+      url = '';
+    }
+    return url;
   }
 
 }

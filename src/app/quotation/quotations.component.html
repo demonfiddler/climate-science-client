@@ -13,6 +13,11 @@
             <mat-hint>Case-insensitive match against all fields</mat-hint>
         </mat-form-field>
         <span class="spacer"></span>
+        <mat-icon #exportTrigger [matMenuTriggerFor]="exportMenu" aria-hidden="false" aria-label="Export List" fontIcon="download" style="font-size: 1.5rem" title="Download as..."></mat-icon>
+        <mat-menu #exportMenu="matMenu">
+          <a mat-menu-item [href]="getDownloadUrl('text/csv')" download="quotations.csv" type="text/csv">Download as CSV</a>
+          <a mat-menu-item [href]="getDownloadUrl('application/pdf')" download="quotations.pdf" type="application/pdf">Download as PDF</a>
+        </mat-menu>
         <mat-icon title="Reload current page" (click)="reload()">refresh</mat-icon>
     </mat-toolbar>
 
