@@ -4,17 +4,21 @@
     Licensed under the GNU Affero General Public License v.3 https://www.gnu.org/licenses/agpl-3.0.html
 -->
 <div class="toolbar" role="banner">
-  <span><a href="https://campaign-resources.org/" target="_blank" style="color: white"><mat-icon aria-hidden="false" aria-label="Home" title="Home" fontIcon="home" style="font-size: 1.5rem"></mat-icon>campaign-resources.org</a></span>
+  <span>
+    &nbsp;
+    <a href="https://campaign-resources.org/" target="_blank" title="Main Campaign Resources website"><img src="assets/images/campaign-resources-favicon-48.png"></a>&nbsp;
+    <a href="https://campaign-resources.org/climate.html" target="_blank" style="color: white" title="Climate science web page with leaflet, etc.">Climate Page</a>&nbsp;
+  </span>
   <div class="spacer"></div>
   <span>{{title}}</span>
   <div class="spacer"></div>
-  <span><a href="https://campaign-resources.org/climate-science-client-instructions.html" aria-label="Instructions" title="Instructions for use" target="_blank" style="color: white">Instructions</a></span>
-  <mat-icon #menuTrigger [matMenuTriggerFor]="account" aria-hidden="false" aria-label="Current Account" fontIcon="account_circle" style="font-size: 1.5rem"></mat-icon>
+  <a href="https://campaign-resources.org/climate-science-client-instructions.html" target="_blank" style="color: white" title="Instructions for using the web app">Instructions</a>&nbsp;
+  <mat-icon #menuTrigger [matMenuTriggerFor]="account" aria-hidden="false" aria-label="Current Account" fontIcon="account_circle" style="font-size: 1.6rem"></mat-icon>
   <mat-menu #account="matMenu">
     <button mat-menu-item [disabled]="authService.isLoggedIn()" (click)="openLoginDialog()">Login</button>
     <button mat-menu-item [disabled]="authService.isLoggedOut()" (click)="authService.logout()">Logout</button>
   </mat-menu>
-  <span>{{authService.getCurrentSubject()}}</span>
+  <span>{{authService.getCurrentSubject()}}&nbsp;</span>
 </div>
 
 <div class="content" role="main">
