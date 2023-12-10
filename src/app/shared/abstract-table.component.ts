@@ -5,8 +5,9 @@
  */
 
 import { Component, Input, Output, EventEmitter, OnInit, AfterViewInit, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatInput } from '@angular/material/input';
 import { MatSort } from '@angular/material/sort';
+import { MatPaginator } from '@angular/material/paginator';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Subject, Subscription, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 
@@ -33,9 +34,9 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
   countSubscription: Subscription;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) matSort: MatSort;
+  @ViewChild(MatInput) filterInput : HTMLInputElement;
   paginatorSubscription: Subscription;
   sortSubscription: Subscription;
-  filterInput : HTMLInputElement;
   filter : string = '';
   private filter$ = new Subject<string>();
 
@@ -167,7 +168,6 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
     if (e.key == 'Escape') {
       this.clearFilter();
     } else {
-      this.filterInput = e.target as HTMLInputElement;
       const filter = this.filterInput.value.trim().toLowerCase();
       this.filter$.next(filter);
     }
@@ -177,7 +177,8 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
    * Clears any filter string and selection then reloads the data.
    */
   clearFilter() {
-    this.filterInput.value = '';
+    if (this.filterInput)
+      this.filterInput.value = '';
     this.filter='';
     this.selectionModel.clear();
     this.loadData();
