@@ -44,7 +44,7 @@ export class ClimateScienceService {
    * @param http The injected HttpClient.
    */
   constructor(private http: HttpClient) {
-    console.debug('Service URL: ' + env.serviceUrl);
+    // console.debug('Service URL: ' + env.serviceUrl);
   }
 
   /**

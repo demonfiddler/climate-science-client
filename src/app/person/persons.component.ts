@@ -107,7 +107,6 @@ export class PersonsComponent extends AbstractTableComponent<Person> {
    * @override
    */
   loadData() {
-    console.log('PersonsComponent.loadData()');
     if (this.dataSource && this.master) {
       switch (this.master) {
         case Master.None:
