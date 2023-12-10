@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule, MatHint } from '@angular/material/form-field';
@@ -36,6 +37,7 @@ import * as paths  from '../shared/paths';
     CommonModule,
     MatToolbarModule,
     MatTableModule,
+    MatSortModule,
     MatCheckboxModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
@@ -53,11 +55,11 @@ export class DeclarationsComponent extends AbstractTableComponent<Declaration> {
 
   /**
    * Constructs a new DeclarationsComponent.
-   * @param climateScienceService The injected climate science service.
+   * @param api The injected climate science service.
    */
-  constructor(protected override climateScienceService: ClimateScienceService) {
-    super(climateScienceService);
-    this.displayedColumns = ['TITLE', 'DATE', 'TYPE', 'COUNTRY'];
+  constructor(public override api: ClimateScienceService) {
+    super(api);
+    this.displayedColumns = ['TITLE', 'DATE', 'TYPE', 'SIGNATORY_COUNT', 'COUNTRY'];
   }
 
   /**
@@ -73,9 +75,8 @@ export class DeclarationsComponent extends AbstractTableComponent<Declaration> {
    * @override
    */
   override ngOnInit() {
+    this.dataSource = new DeclarationDataSource(this);
     super.ngOnInit();
-    this.dataSource = new DeclarationDataSource(this.climateScienceService);
-    this.dataSource.loadDeclarations('', 0, 5);
   }
 
   /**
@@ -97,15 +98,15 @@ export class DeclarationsComponent extends AbstractTableComponent<Declaration> {
    * @inheritdoc
    * @override
    */
-  loadData(filter: string) {
+  loadData() {
     if (this.dataSource && this.master) {
       switch (this.master) {
         case Master.None:
         case Master.Declarations:
-          this.dataSource.loadDeclarations(filter, this.paginator.pageIndex, this.paginator.pageSize);
+          this.dataSource.loadDeclarations();
           break;
         case Master.Persons:
-          this.dataSource.loadDeclarationsBySignatory(this.getEntityId(this.person), this.getLastName(this.person), filter, this.paginator.pageIndex, this.paginator.pageSize);
+          this.dataSource.loadDeclarationsBySignatory(this.getEntityId(this.person), this.getLastName(this.person));
           break;
         case Master.Publications:
         case Master.Quotations:
@@ -147,6 +148,11 @@ export class DeclarationsComponent extends AbstractTableComponent<Declaration> {
       if (this.filter) {
         let sep = paramAdded ? '&' : '?';
         url += `${sep}filter=${this.filter}`;
+        paramAdded = true;
+      }
+      if (this.sort) {
+        let sep = paramAdded ? '&' : '?';
+        url += `${sep}sort=${this.sort}`;
         paramAdded = true;
       }
       let sep = paramAdded ? '&' : '?';

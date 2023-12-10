@@ -49,10 +49,10 @@ export class StatisticsComponent extends AbstractTableComponent<Statistic> {
 
   /**
    * Constructs a new StatisticsComponent.
-   * @param climateScienceService The injected climate science service.
+   * @param api The injected climate science service.
    */
-  constructor(protected override climateScienceService: ClimateScienceService) {
-    super(climateScienceService);
+  constructor(public override api: ClimateScienceService) {
+    super(api);
     this.displayedColumns = ['CATEGORY', 'COUNT', 'DESCRIPTION'];
   }
 
@@ -69,9 +69,8 @@ export class StatisticsComponent extends AbstractTableComponent<Statistic> {
    * @override
    */
   override ngOnInit() {
+    this.dataSource = new StatisticsDataSource(this);
     super.ngOnInit();
-    this.dataSource = new StatisticsDataSource(this.climateScienceService);
-    this.dataSource.loadStatistics('climate', 0, 0);
   }
 
   /**
@@ -88,9 +87,9 @@ export class StatisticsComponent extends AbstractTableComponent<Statistic> {
    * @inheritdoc
    * @override
    */
-  loadData(filter: string) {
+  loadData() {
     if (this.dataSource && this.master) {
-      this.dataSource.loadStatistics('climate', 0, 0);
+      this.dataSource.loadStatistics('climate');
     }
   }
 

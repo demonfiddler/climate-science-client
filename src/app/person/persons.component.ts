@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -37,6 +38,7 @@ import * as paths  from '../shared/paths';
     CommonModule,
     MatToolbarModule,
     MatTableModule,
+    MatSortModule,
     MatCheckboxModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
@@ -56,10 +58,10 @@ export class PersonsComponent extends AbstractTableComponent<Person> {
 
   /**
    * Constructs a new PersonsComponent.
-   * @param climateScienceService The injected climate science service.
+   * @param api The injected climate science service.
    */
-  constructor(protected override climateScienceService: ClimateScienceService) {
-    super(climateScienceService);
+  constructor(public override api: ClimateScienceService) {
+    super(api);
     this.displayedColumns = ['TITLE', 'FIRST_NAME', 'LAST_NAME', 'COUNTRY', 'RATING', 'PUBLISHED'];
   }
 
@@ -76,10 +78,8 @@ export class PersonsComponent extends AbstractTableComponent<Person> {
    * @override
    */
   override ngOnInit() {
+    this.dataSource = new PersonDataSource(this);
     super.ngOnInit();
-    this.dataSource = new PersonDataSource(this.climateScienceService);
-    // TODO: figure out whether this call is redundant.
-    this.dataSource.loadPersons('', 0, 5);
   }
 
   /**
@@ -106,18 +106,19 @@ export class PersonsComponent extends AbstractTableComponent<Person> {
    * @inheritdoc
    * @override
    */
-  loadData(filter: string) {
+  loadData() {
+    console.log('PersonsComponent.loadData()');
     if (this.dataSource && this.master) {
       switch (this.master) {
         case Master.None:
         case Master.Persons:
-          this.dataSource.loadPersons(filter, this.paginator.pageIndex, this.paginator.pageSize);
+          this.dataSource.loadPersons();
           break;
         case Master.Publications:
-          this.dataSource.loadPersonsByPublication(this.getEntityId(this.publication), filter, this.paginator.pageIndex, this.paginator.pageSize);
+          this.dataSource.loadPersonsByPublication(this.getEntityId(this.publication));
           break;
         case Master.Declarations:
-          this.dataSource.loadPersonsByDeclaration(this.getEntityId(this.declaration), filter, this.paginator.pageIndex, this.paginator.pageSize);
+          this.dataSource.loadPersonsByDeclaration(this.getEntityId(this.declaration));
           break;
         case Master.Quotations:
           this.dataSource.loadPerson(this.quotation ? this.quotation.PERSON_ID : undefined);
@@ -159,6 +160,11 @@ export class PersonsComponent extends AbstractTableComponent<Person> {
       if (this.filter) {
         let sep = paramAdded ? '&' : '?';
         url += `${sep}filter=${this.filter}`;
+        paramAdded = true;
+      }
+      if (this.sort) {
+        let sep = paramAdded ? '&' : '?';
+        url += `${sep}sort=${this.sort}`;
         paramAdded = true;
       }
       let sep = paramAdded ? '&' : '?';

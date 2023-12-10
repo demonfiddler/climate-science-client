@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule, MatHint } from '@angular/material/form-field';
@@ -36,6 +37,7 @@ import * as paths  from '../shared/paths';
     CommonModule,
     MatToolbarModule,
     MatTableModule,
+    MatSortModule,
     MatCheckboxModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
@@ -54,10 +56,10 @@ export class PublicationsComponent extends AbstractTableComponent<Publication> {
 
   /**
    * Constructs a new PublicationsComponent.
-   * @param climateScienceService The injected climate science service.
+   * @param api The injected climate science service.
    */
-  constructor(protected override climateScienceService: ClimateScienceService) {
-    super(climateScienceService);
+  constructor(public override api: ClimateScienceService) {
+    super(api);
     this.displayedColumns = ['TITLE', 'JOURNAL', 'PUBLICATION_TYPE_ID', 'PUBLICATION_YEAR', 'PEER_REVIEWED'];
   }
 
@@ -74,9 +76,8 @@ export class PublicationsComponent extends AbstractTableComponent<Publication> {
    * @override
    */
   override ngOnInit() {
+    this.dataSource = new PublicationDataSource(this);
     super.ngOnInit();
-    this.dataSource = new PublicationDataSource(this.climateScienceService);
-    this.dataSource.loadPublications('', 0, 5);
   }
 
   /**
@@ -98,15 +99,15 @@ export class PublicationsComponent extends AbstractTableComponent<Publication> {
    * @inheritdoc
    * @override
    */
-  loadData(filter: string) {
+  loadData() {
     if (this.dataSource && this.master) {
       switch (this.master) {
         case Master.None:
         case Master.Publications:
-          this.dataSource.loadPublications(filter, this.paginator.pageIndex, this.paginator.pageSize);
+          this.dataSource.loadPublications();
           break;
         case Master.Persons:
-          this.dataSource.loadPublicationsByAuthor(this.getEntityId(this.person), this.getLastName(this.person), filter, this.paginator.pageIndex, this.paginator.pageSize);
+          this.dataSource.loadPublicationsByAuthor(this.getEntityId(this.person), this.getLastName(this.person));
           break;
         case Master.Declarations:
         case Master.Quotations:
@@ -144,7 +145,12 @@ export class PublicationsComponent extends AbstractTableComponent<Publication> {
           url += `${sep}filter=${this.filter}`;
           paramAdded = true;
         }
-        let sep = paramAdded ? '&' : '?';
+        if (this.sort) {
+          let sep = paramAdded ? '&' : '?';
+          url += `${sep}sort=${this.sort}`;
+          paramAdded = true;
+        }
+          let sep = paramAdded ? '&' : '?';
         url += `${sep}contentType=${contentType}`;
     } else {
       url = '';

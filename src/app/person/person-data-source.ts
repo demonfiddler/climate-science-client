@@ -6,8 +6,8 @@
 
 import { catchError, finalize, of, tap } from 'rxjs';
 import { Person } from "../shared/data-model";
-import { ClimateScienceService } from "../shared/climate-science.service";
 import { AbstractDataSource } from "../shared/abstract-data-source";
+import { ListConfig } from '../shared/list-config';
 
 /**
  * A DataSource for fetching Persons from the back-end REST service.
@@ -18,10 +18,10 @@ export class PersonDataSource extends AbstractDataSource<Person> {
 
   /**
    * Constructs a new PersonDataSource.
-   * @param climateScienceService The injected climate science service.
+   * @param cfg The list configuration to control pagination, filtering and sorting.
    */
-  constructor(climateScienceService: ClimateScienceService) {
-    super(climateScienceService);
+  constructor(cfg : ListConfig) {
+    super(cfg);
   }
 
   /**
@@ -29,10 +29,9 @@ export class PersonDataSource extends AbstractDataSource<Person> {
    * @param personId The ID of the Person to load.
    */
   loadPerson(personId?: number) {
-    this.loadingSubject.next(true);
-
     if (personId) {
-      let subscription = this.climateScienceService.getPersonById(personId)
+      this.loadingSubject.next(true);
+      let subscription = this.cfg.api.getPersonById(personId)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),
@@ -48,14 +47,10 @@ export class PersonDataSource extends AbstractDataSource<Person> {
 
   /**
    * Loads Persons from the REST service.
-   * @param filter User-defined search string.
-   * @param pageIndex The 0-based index of the page requested.
-   * @param pageSize The number of items to load.
    */
-  loadPersons(filter: string, pageIndex : number, pageSize : number) {
+  loadPersons() {
       this.loadingSubject.next(true);
-
-      let subscription = this.climateScienceService.findPersons(filter, pageIndex * pageSize, pageSize)
+      let subscription = this.cfg.api.findPersons(this.cfg.filter, this.cfg.sort, this.cfg.start, this.cfg.count)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),
@@ -70,15 +65,11 @@ export class PersonDataSource extends AbstractDataSource<Person> {
   /**
    * Loads the Persons known to be authors of the specified Publication.
    * @param publicationId The ID of the specified Publication.
-   * @param filter User-defined search string.
-   * @param pageIndex The 0-based index of the page requested.
-   * @param pageSize The number of items to load.
    */
-  loadPersonsByPublication(publicationId : number|undefined, filter: string, pageIndex : number, pageSize : number) {
-    this.loadingSubject.next(true);
-
+  loadPersonsByPublication(publicationId : number|undefined) {
     if (publicationId) {
-      let subscription = this.climateScienceService.findPersonsByPublication(publicationId, filter, pageIndex * pageSize, pageSize)
+      this.loadingSubject.next(true);
+      let subscription = this.cfg.api.findPersonsByPublication(publicationId, this.cfg.filter, this.cfg.sort, this.cfg.start, this.cfg.count)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),
@@ -96,15 +87,11 @@ export class PersonDataSource extends AbstractDataSource<Person> {
   /**
    * Loads the Persons known to be signatories of the specified Declaration.
    * @param declarationId The ID of the specified Declaration.
-   * @param filter User-defined search string.
-   * @param pageIndex The 0-based index of the page requested.
-   * @param pageSize The number of items to load.
    */
-  loadPersonsByDeclaration(declarationId : number|undefined, filter: string, pageIndex : number, pageSize : number) {
-    this.loadingSubject.next(true);
-
+  loadPersonsByDeclaration(declarationId : number|undefined) {
     if (declarationId) {
-      let subscription = this.climateScienceService.findPersonsByDeclaration(declarationId, filter, pageIndex * pageSize, pageSize)
+      this.loadingSubject.next(true);
+      let subscription = this.cfg.api.findPersonsByDeclaration(declarationId, this.cfg.filter, this.cfg.sort, this.cfg.start, this.cfg.count)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),

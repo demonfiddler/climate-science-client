@@ -25,25 +25,30 @@
         <mat-spinner></mat-spinner>
     </div>
 
-    <mat-table [dataSource]="dataSource" style="height: 300px; overflow-y: auto;">
+    <mat-table matSort [dataSource]="dataSource" style="height: 300px; overflow-y: auto;">
 
         <ng-container matColumnDef="TITLE">
-            <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Title"> Title </mat-header-cell>
             <mat-cell *matCellDef="let row"> {{row.TITLE}} </mat-cell>
         </ng-container>
 
         <ng-container matColumnDef="DATE">
-            <mat-header-cell *matHeaderCellDef> Date </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Date"> Date </mat-header-cell>
             <mat-cell *matCellDef="let row"> {{row.DATE}} </mat-cell>
         </ng-container>
 
         <ng-container matColumnDef="TYPE">
-            <mat-header-cell *matHeaderCellDef> Type </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Type"> Type </mat-header-cell>
             <mat-cell *matCellDef="let row"> {{row.TYPE}} </mat-cell>
         </ng-container>    
 
+        <ng-container matColumnDef="SIGNATORY_COUNT">
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Signatory Count"> Signatory Count </mat-header-cell>
+            <mat-cell *matCellDef="let row"> {{row.SIGNATORY_COUNT}} </mat-cell>
+        </ng-container>
+
         <ng-container matColumnDef="COUNTRY">
-            <mat-header-cell *matHeaderCellDef> Country </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Country"> Country </mat-header-cell>
             <mat-cell *matCellDef="let row"> {{row.COUNTRY}} </mat-cell>
         </ng-container>
 

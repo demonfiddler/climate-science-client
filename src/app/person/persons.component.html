@@ -24,39 +24,30 @@
     <div class="spinner-container" *ngIf="dataSource.loading$ | async">
         <mat-spinner></mat-spinner>
     </div>
-  
-    <mat-table [dataSource]="dataSource" style="width: 856px; height: 300px; overflow-y: auto;">
-        <ng-container matColumnDef="SELECTED">
-            <mat-header-cell *matHeaderCellDef> Select </mat-header-cell>
-            <mat-cell *matCellDef="let person">
-                <mat-checkbox (click)="$event.stopPropagation()"
-                              (change)="$event ? selectionModel.toggle(person) : null"
-                              [checked]="selectionModel.isSelected(person)"></mat-checkbox>
-            </mat-cell>
-        </ng-container>
 
+    <mat-table matSort [dataSource]="dataSource" style="width: 856px; height: 300px; overflow-y: auto;">
         <ng-container matColumnDef="TITLE">
-            <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Title"> Title </mat-header-cell>
             <mat-cell *matCellDef="let person"> {{person.TITLE}} </mat-cell>
         </ng-container>
 
         <ng-container matColumnDef="FIRST_NAME">
-            <mat-header-cell *matHeaderCellDef> First Name </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by First Name"> First Name </mat-header-cell>
             <mat-cell *matCellDef="let person"> {{person.FIRST_NAME}} </mat-cell>
         </ng-container>
 
         <ng-container matColumnDef="LAST_NAME">
-            <mat-header-cell *matHeaderCellDef> Last Name </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Last Name"> Last Name </mat-header-cell>
             <mat-cell *matCellDef="let person"> {{person.PREFIX}} {{person.LAST_NAME}} {{person.SUFFIX}} </mat-cell>
         </ng-container>
 
         <ng-container matColumnDef="COUNTRY">
-            <mat-header-cell *matHeaderCellDef> Country </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Country"> Country </mat-header-cell>
             <mat-cell *matCellDef="let person"> {{person.COUNTRY}} </mat-cell>
         </ng-container>
 
         <ng-container matColumnDef="RATING">
-            <mat-header-cell *matHeaderCellDef> Rating </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Rating"> Rating </mat-header-cell>
             <mat-cell *matCellDef="let person">
                 <ngb-rating [max]="5" [rate]="person.RATING" [readonly]="true">
                 </ngb-rating>
@@ -64,8 +55,8 @@
         </ng-container>
 
         <ng-container matColumnDef="PUBLISHED">
-            <mat-header-cell *matHeaderCellDef> Published </mat-header-cell>
-            <mat-cell *matCellDef="let person"> <mat-checkbox disabled [checked]="person.PUBLISHED == 1"></mat-checkbox> </mat-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Published status"> Published </mat-header-cell>
+            <mat-cell *matCellDef="let person"><mat-checkbox disabled [checked]="person.PUBLISHED == 1"></mat-checkbox></mat-cell>
         </ng-container>
 
         <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>

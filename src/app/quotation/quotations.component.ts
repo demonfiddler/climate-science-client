@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule, MatHint } from '@angular/material/form-field';
@@ -36,6 +37,7 @@ import * as paths  from '../shared/paths';
     CommonModule,
     MatToolbarModule,
     MatTableModule,
+    MatSortModule,
     MatCheckboxModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
@@ -51,10 +53,10 @@ export class QuotationsComponent extends AbstractTableComponent<Quotation> {
 
   /**
    * Constructs a new QuotationsComponent.
-   * @param climateScienceService The injected climate science service.
+   * @param api The injected climate science service.
    */
-  constructor(protected override climateScienceService: ClimateScienceService) {
-    super(climateScienceService);
+  constructor(public override api: ClimateScienceService) {
+    super(api);
     this.displayedColumns = ['AUTHOR', 'DATE', 'SOURCE'];
   }
 
@@ -71,9 +73,8 @@ export class QuotationsComponent extends AbstractTableComponent<Quotation> {
    * @override
    */
   override ngOnInit() {
+    this.dataSource = new QuotationDataSource(this);
     super.ngOnInit();
-    this.dataSource = new QuotationDataSource(this.climateScienceService);
-    this.dataSource.loadQuotations('', 0, 5);
   }
 
   /**
@@ -95,15 +96,15 @@ export class QuotationsComponent extends AbstractTableComponent<Quotation> {
    * @inheritdoc
    * @override
    */
-  loadData(filter: string) {
+  loadData() {
     if (this.dataSource && this.master) {
       switch (this.master) {
         case Master.None:
         case Master.Quotations:
-          this.dataSource.loadQuotations(filter, this.paginator.pageIndex, this.paginator.pageSize);
+          this.dataSource.loadQuotations();
           break;
         case Master.Persons:
-          this.dataSource.loadQuotationsByAuthor(this.getEntityId(this.person), this.getLastName(this.person), filter, this.paginator.pageIndex, this.paginator.pageSize);
+          this.dataSource.loadQuotationsByAuthor(this.getEntityId(this.person), this.getLastName(this.person));
           break;
         case Master.Publications:
         case Master.Declarations:
@@ -140,6 +141,11 @@ export class QuotationsComponent extends AbstractTableComponent<Quotation> {
       if (this.filter) {
         let sep = paramAdded ? '&' : '?';
         url += `${sep}filter=${this.filter}`;
+        paramAdded = true;
+      }
+      if (this.sort) {
+        let sep = paramAdded ? '&' : '?';
+        url += `${sep}sort=${this.sort}`;
         paramAdded = true;
       }
       let sep = paramAdded ? '&' : '?';

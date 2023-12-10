@@ -182,13 +182,16 @@ export class ClimateScienceService {
    * Initialises an HttpParams object, optionally creating it.
    * @param params An optional HttpParams instance.
    * @param filter Optional user-defined filter string.
+   * @param sort Optional user-defined sort specification, weith format 'COLUMN {ASC|DESC}'.
    * @param start Optional start index.
    * @param count Optional result set count.
    * @returns An HttpParams object with the specified parameters set.
    */
-  private addParams(params = new HttpParams(), filter? : string, start? : number, count? : number) : HttpParams {
+  private addParams(params = new HttpParams(), filter? : string, sort? : string, start? : number, count? : number) : HttpParams {
     if (filter && filter.length > 0)
       params = params.set('filter', filter);
+    if (sort && sort.length > 0)
+      params = params.set('sort', sort);
     if (start && start > 0)
       params = params.set('start', start);
     if (count && count > 0)
@@ -210,14 +213,15 @@ export class ClimateScienceService {
   /**
    * Fetches a paginated sub-list of Persons.
    * @param filter User-defined search string.
+   * @param sort Optional user-defined sort specification, weith format 'COLUMN {ASC|DESC}'.
    * @param start The index of the first Person to retrieve.
    * @param count The maximum number of Persons to retrieve.
    * @return An Observable to deliver the requested Persons.
    */
-  findPersons(filter? : string, start = 0, count = 0) : Observable<ResultSet<Person>> {
+  findPersons(filter? : string, sort? : string, start = 0, count = 0) : Observable<ResultSet<Person>> {
     // GET /person/find?filter=&start=0&count=0 => findPersons(filter, start, count)
     let url = `${env.serviceUrl}${paths.PERSON_FIND}`;
-    let params = this.addParams(undefined, filter, start, count);
+    let params = this.addParams(undefined, filter, sort, start, count);
     return this.http.get<ResultSet<Person>>(url, {params: params});
   }
 
@@ -225,15 +229,16 @@ export class ClimateScienceService {
    * Fetches a paginated sub-list of Persons who are authors of a specified Publication.
    * @param publicationId The ID of the Publication whose authors are required.
    * @param filter User-defined search string.
+   * @param sort Optional user-defined sort specification, weith format 'COLUMN {ASC|DESC}'.
    * @param start The index of the first Person to retrieve.
    * @param count The maximum number of Persons to retrieve.
    * @return An Observable to deliver the requested Persons.
    */
-  findPersonsByPublication(publicationId?: number, filter? : string, start = 0, count = 0) : Observable<ResultSet<Person>> {
+  findPersonsByPublication(publicationId?: number, filter? : string, sort? : string, start = 0, count = 0) : Observable<ResultSet<Person>> {
     // GET /person/findByPublication?publicationId=0&filter=&start=0&count=0 => findPersonsByPublication(publicationId, filter, start, count)
     let url = `${env.serviceUrl}${paths.PERSON_FIND_BY_PUBLICATION}`;
     let params = this.addParam(undefined, 'publicationId', publicationId);
-    params = this.addParams(params, filter, start, count);
+    params = this.addParams(params, filter, sort, start, count);
     return this.http.get<ResultSet<Person>>(url, {params: params});
   }
 
@@ -241,15 +246,16 @@ export class ClimateScienceService {
    * Fetches a paginated sub-list of Persons who are signatories to a specified Declaration.
    * @param declarationId The ID of the Declaration whose signatories are required.
    * @param filter User-defined search string.
+   * @param sort Optional user-defined sort specification, weith format 'COLUMN {ASC|DESC}'.
    * @param start The index of the first Person to retrieve.
    * @param count The maximum number of Persons to retrieve.
    * @return An Observable to deliver the requested Persons.
    */
-  findPersonsByDeclaration(declarationId?: number, filter? : string, start = 0, count = 0) : Observable<ResultSet<Person>> {
+  findPersonsByDeclaration(declarationId?: number, filter? : string, sort? : string, start = 0, count = 0) : Observable<ResultSet<Person>> {
     // GET /person/findByDeclaration?declarationId=0&filter=&start=0&count=0 => findPersonsByDeclaration(declarationId, filter, start, count)
     let url = `${env.serviceUrl}${paths.PERSON_FIND_BY_DECLARATION}`;
     let params = this.addParam(undefined, 'declarationId', declarationId);
-    params = this.addParams(params, filter, start, count);
+    params = this.addParams(params, filter, sort, start, count);
     return this.http.get<ResultSet<Person>>(url, {params: params});
   }
 
@@ -267,14 +273,15 @@ export class ClimateScienceService {
   /**
    * Fetches a paginated sub-list of Publications.
    * @param filter User-defined search string.
+   * @param sort Optional user-defined sort specification, weith format 'COLUMN {ASC|DESC}'.
    * @param start The index of the first Publication to retrieve.
    * @param count The maximum number of Publications to retrieve.
    * @return An Observable to deliver the requested Publications.
    */
-  findPublications(filter? : string, start = 0, count = 0) : Observable<ResultSet<Publication>> {
+  findPublications(filter? : string, sort? : string, start = 0, count = 0) : Observable<ResultSet<Publication>> {
     // GET /publication/find?filter=&start=0&count=0 => findPublications(filter, start, count)
     let url = `${env.serviceUrl}${paths.PUBLICATION_FIND}`;
-    let params = this.addParams(undefined, filter, start, count);
+    let params = this.addParams(undefined, filter, sort, start, count);
     return this.http.get<ResultSet<Publication>>(url, {params: params});
   }
 
@@ -282,16 +289,17 @@ export class ClimateScienceService {
    * Fetches a paginated sub-list of Publications authored by a specified Person.
    * @param personId The ID of the Person whose Publications are required.
    * @param filter User-defined search string.
+   * @param sort Optional user-defined sort specification, weith format 'COLUMN {ASC|DESC}'.
    * @param start The index of the first Publication to retrieve.
    * @param count The maximum number of Publications to retrieve.
    * @return An Observable to deliver the requested Publications.
    */
-  findPublicationsByAuthor(personId?: number, lastName?: string, filter? : string, start = 0, count = 0) : Observable<ResultSet<Publication>> {
+  findPublicationsByAuthor(personId?: number, lastName?: string, filter? : string, sort? : string, start = 0, count = 0) : Observable<ResultSet<Publication>> {
     // GET /publication/findByAuthor?personId=0&lastName=author&filter=&start=0&count=0 => findPublicationsByAuthor(personId, lastName, filter, start, count)
     let url = `${env.serviceUrl}${paths.PUBLICATION_FIND_BY_AUTHOR}`;
     let params = this.addParam(undefined, 'personId', personId);
     params = this.addParam(params, 'lastName', lastName);
-    params = this.addParams(params, filter, start, count);
+    params = this.addParams(params, filter, sort, start, count);
     return this.http.get<ResultSet<Publication>>(url, {params: params});
   }
 
@@ -309,14 +317,15 @@ export class ClimateScienceService {
   /**
    * Fetches a paginated sub-list of Declarations.
    * @param filter User-defined search string.
+   * @param sort Optional user-defined sort specification, weith format 'COLUMN {ASC|DESC}'.
    * @param start The index of the first Declaration to retrieve.
    * @param count The maximum number of Declarations to retrieve.
    * @return An Observable to deliver the requested Declarations.
    */
-  findDeclarations(filter? : string, start = 0, count = 0) : Observable<ResultSet<Declaration>> {
+  findDeclarations(filter? : string, sort? : string, start = 0, count = 0) : Observable<ResultSet<Declaration>> {
     // GET /declaration/find?filter=&start=0&count=0 => findDeclarations(filter, start, count)
     let url = `${env.serviceUrl}${paths.DECLARATION_FIND}`;
-    let params = this.addParams(undefined, filter, start, count);
+    let params = this.addParams(undefined, filter, sort, start, count);
     return this.http.get<ResultSet<Declaration>>(url, {params: params});
   }
 
@@ -325,30 +334,32 @@ export class ClimateScienceService {
    * @param personId The ID of the Person whose Declarations are required.
    * @param lastName The specified Person's last name.
    * @param filter User-defined search string.
+   * @param sort Optional user-defined sort specification, weith format 'COLUMN {ASC|DESC}'.
    * @param start The index of the first Declaration to retrieve.
    * @param count The maximum number of Declarations to retrieve.
    * @return An Observable to deliver the requested Declarations.
    */
-  findDeclarationsBySignatory(personId? : number, lastName? : string, filter? : string, start = 0, count = 0) : Observable<ResultSet<Declaration>> {
+  findDeclarationsBySignatory(personId? : number, lastName? : string, filter? : string, sort? : string, start = 0, count = 0) : Observable<ResultSet<Declaration>> {
     // GET /declaration/find?filter=&start=0&count=0 => findDeclarations(filter, start, count)
     let url = `${env.serviceUrl}${paths.DECLARATION_FIND_BY_SIGNATORY}`;
     let params = this.addParam(undefined, 'personId', personId);
     params = this.addParam(params, 'lastName', lastName);
-    params = this.addParams(params, filter, start, count);
+    params = this.addParams(params, filter, sort, start, count);
     return this.http.get<ResultSet<Declaration>>(url, {params: params});
   }
 
   /**
    * Fetches a paginated sub-list of Quotations.
    * @param filter User-defined search string.
+   * @param sort Optional user-defined sort specification, weith format 'COLUMN {ASC|DESC}'.
    * @param start The index of the first Quotation to retrieve.
    * @param count The maximum number of Quotations to retrieve.
    * @return An Observable to deliver the requested Quotations.
    */
-  findQuotations(filter? : string, start = 0, count = 0) : Observable<ResultSet<Quotation>> {
+  findQuotations(filter? : string, sort? : string, start = 0, count = 0) : Observable<ResultSet<Quotation>> {
     // GET /quotation/find?filter=&start=0&count=0 => findQuotations(filter, start, count)
     let url = `${env.serviceUrl}${paths.QUOTATION_FIND}`;
-    let params = this.addParams(undefined, filter, start, count);
+    let params = this.addParams(undefined, filter, sort, start, count);
     return this.http.get<ResultSet<Quotation>>(url, {params: params});
   }
 
@@ -356,31 +367,29 @@ export class ClimateScienceService {
    * Fetches a paginated sub-list of Quotations authored by a specified Person.
    * @param personId The ID of the Person whose Quotations are required.
    * @param filter User-defined search string.
+   * @param sort Optional user-defined sort specification, weith format 'COLUMN {ASC|DESC}'.
    * @param start The index of the first Quotation to retrieve.
    * @param count The maximum number of Quotations to retrieve.
    * @return An Observable to deliver the requested Quotations.
    */
-  findQuotationsByAuthor(personId? : number, lastName? : string, filter? : string, start = 0, count = 0) : Observable<ResultSet<Quotation>> {
+  findQuotationsByAuthor(personId? : number, lastName? : string, filter? : string, sort? : string, start = 0, count = 0) : Observable<ResultSet<Quotation>> {
     // GET /quotation/findByAuthor?personId=0filter=&start=0&count=0 => findQuotationsByAuthor(start, count)
     let url = `${env.serviceUrl}${paths.QUOTATION_FIND_BY_AUTHOR}`;
     let params = this.addParam(undefined, 'personId', personId);
     params = this.addParam(params, 'lastName', lastName);
-    params = this.addParams(params, filter, start, count);
+    params = this.addParams(params, filter, sort, start, count);
     return this.http.get<ResultSet<Quotation>>(url, {params: params});
   }
 
   /**
    * Fetches a paginated sub-list of database Statistics.
    * @param topic The topic for which Statistics are requested.
-   * @param start The index of the first Statistic to retrieve.
-   * @param count The maximum number of Statistics to retrieve.
    * @returns An Observable to deliver the requested Statistics.
    */
-  findStatistics(topic : string, start = 0, count = 0) : Observable<ResultSet<Statistic>> {
+  findStatistics(topic : string) : Observable<ResultSet<Statistic>> {
     // GET /statistics/find?topic=climate&start=0&count=0 => findStatistics(topic, start, count)
     let url = `${env.serviceUrl}${paths.STATISTICS_FIND}`;
     let params = this.addParam(undefined, 'topic', topic);
-    params = this.addParams(params, undefined, start, count);
     return this.http.get<ResultSet<Statistic>>(url, {params: params});
   }
 

@@ -25,20 +25,20 @@
         <mat-spinner></mat-spinner>
     </div>
 
-    <mat-table [dataSource]="dataSource" style="height: 300px; overflow-y: auto;">
+    <mat-table matSort [dataSource]="dataSource" style="height: 300px; overflow-y: auto;">
 
         <ng-container matColumnDef="AUTHOR">
-            <mat-header-cell *matHeaderCellDef> Author </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Author"> Author </mat-header-cell>
             <mat-cell *matCellDef="let quotation"> {{quotation.AUTHOR}} </mat-cell>
         </ng-container>
 
         <ng-container matColumnDef="DATE">
-            <mat-header-cell *matHeaderCellDef> Date </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Date"> Date </mat-header-cell>
             <mat-cell *matCellDef="let quotation"> {{quotation.DATE}} </mat-cell>
         </ng-container>
 
         <ng-container matColumnDef="SOURCE">
-            <mat-header-cell *matHeaderCellDef> Source </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Source"> Source </mat-header-cell>
             <mat-cell *matCellDef="let quotation"> {{quotation.SOURCE}} </mat-cell>
         </ng-container>    
 

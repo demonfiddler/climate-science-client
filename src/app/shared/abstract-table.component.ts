@@ -6,12 +6,14 @@
 
 import { Component, Input, Output, EventEmitter, OnInit, AfterViewInit, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Subject, Subscription, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 
 import { Entity, Person } from './data-model';
 import { AbstractDataSource } from './abstract-data-source';
-import { ClimateScienceService } from "./climate-science.service";
+import { ClimateScienceService } from './climate-science.service';
+import { ListConfig } from '../shared/list-config';
 
 /**
  * Abstract base for a component that displays a list of entities, with a uni-selection model.
@@ -20,7 +22,7 @@ import { ClimateScienceService } from "./climate-science.service";
 @Component({
   template: ''
 })
-export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit, OnChanges, OnDestroy {
+export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit, OnChanges, OnDestroy, ListConfig {
 
   @Input() master: string = "NONE";
   @Input() toolbars: boolean = false;
@@ -30,19 +32,107 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
   selectionModel = new SelectionModel<T>(false, []);
   countSubscription: Subscription;
   @ViewChild(MatPaginator) paginator: MatPaginator;
-  filterInput : HTMLInputElement;
+  @ViewChild(MatSort) matSort: MatSort;
   paginatorSubscription: Subscription;
+  sortSubscription: Subscription;
+  filterInput : HTMLInputElement;
   filter : string = '';
   private filter$ = new Subject<string>();
 
+  get sort() {
+    return this.matSort && this.matSort.active && this.matSort.direction ? this.matSort.active + '+' + this.matSort.direction.toUpperCase() : '';
+  }
+
+  get start() {
+    return this.paginator ? this.paginator.pageIndex * this.paginator.pageSize : 0;
+  }
+
+  get count() {
+    return this.paginator ? this.paginator.pageSize : 0;
+  }
+
   /**
    * Constructs a new AbstractTableComponent. 
-   * @param climateScienceService The injected climate science service.
+   * @param api The injected climate science service.
    */
-  constructor(protected climateScienceService: ClimateScienceService) {
+  constructor(public api: ClimateScienceService) {
     // TODO: See if there is any way to use the SelectionModel directly as the event source.
     this.selectionModel.changed.subscribe(() => this.selectionChange.emit(this.selection));
   }  
+
+  /**
+   * Overrides should create their data source before calling super.ngOnInit().
+   * @inheritdoc 
+   * @override
+   * @virtual
+   */
+  ngOnInit() : void {
+  }
+  
+  /**
+   * @inheritdoc
+   * This implementation initialises listeners on the filter, sorter, count and paginator.
+   * @override
+   */
+  ngAfterViewInit() {
+    this.filter$.pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ).subscribe(filter => {
+      this.filter = filter;
+      this.clearAndReload(true);
+    });
+    if (this.matSort) {
+      this.sortSubscription = this.matSort.sortChange.subscribe(() => {
+        this.clearAndReload(true);
+      });
+    }
+    if (this.paginator) {
+      this.countSubscription = this.dataSource.count$.subscribe(count => this.paginator.length = count);
+      this.paginatorSubscription = this.paginator.page.subscribe(() => {
+        this.clearAndReload(false);
+      });
+    }
+
+    // Perform initial data loading asynchronously, to avoid changing component state after Angular change detection has completed.
+    setTimeout(this.loadData.bind(this), 0);
+  }
+
+  /**
+   * Clears current selection, optionally resets the paginator, then loads data.
+   * @param setFirstPage Whether to reset the paginator to page 1.
+   */
+  private clearAndReload(setFirstPage : boolean) {
+    this.selectionModel.clear();
+    if (setFirstPage && this.paginator)
+      this.paginator.firstPage();
+    this.loadData();
+}
+
+  /**
+   * The implementation determines whether it is a relevant change and if so,
+   * clears the current selection and loads the appropriate data.
+   * @inheritdoc
+   * @override
+   */
+  ngOnChanges(changes: SimpleChanges) {
+    let isRelevantChange = this.isRelevantChange(changes);
+    if (isRelevantChange && this.dataSource) {
+      this.selectionModel.clear(true);
+      this.loadData();
+    }
+  }
+
+  /**
+   * The implementation unsubscribes from the count and paginator evemts.
+   * @inheritdoc
+   * @override
+   */
+  ngOnDestroy() {
+    this.countSubscription.unsubscribe();
+    this.paginatorSubscription.unsubscribe();
+    this.sortSubscription.unsubscribe();
+  }
 
   /**
    * Returns the component type name.
@@ -74,10 +164,10 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
    * @param e The key-up event.
    */
   applyFilter(e: KeyboardEvent) {
-    this.filterInput = e.target as HTMLInputElement;
     if (e.key == 'Escape') {
       this.clearFilter();
     } else {
+      this.filterInput = e.target as HTMLInputElement;
       const filter = this.filterInput.value.trim().toLowerCase();
       this.filter$.next(filter);
     }
@@ -90,64 +180,7 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
     this.filterInput.value = '';
     this.filter='';
     this.selectionModel.clear();
-    this._loadData();
-  }
-
-  /**
-   * Implementations can create their data source and load the initial data.
-   * Overrides must call super.ngOnInit().
-   * @inheritdoc 
-   * @override
-   * @virtual
-   */
-  ngOnInit() : void {
-    this.filter$.pipe(
-      debounceTime(500),
-      distinctUntilChanged()
-    ).subscribe(filter => {
-      this.filter = filter;
-      this.selectionModel.clear();
-      this._loadData();
-    });
-  }
-  
-  /**
-   * @inheritdoc
-   * The implementation initialises listeners on the count and paginator.
-   * @override
-   */
-  ngAfterViewInit() {
-    if (this.paginator) {
-      this.countSubscription = this.dataSource.count$.subscribe(count => this.paginator.length = count);
-      this.paginatorSubscription = this.paginator.page.subscribe(() => {
-        this.selectionModel.clear(true);
-        this._loadData();
-      });
-    }
-  }
-
-  /**
-   * The implementation determines whether it is a relevant change and if so,
-   * clears the current selection and loads the appropriate data.
-   * @inheritdoc
-   * @override
-   */
-  ngOnChanges(changes: SimpleChanges) {
-    let isRelevantChange = this.isRelevantChange(changes);
-    if (isRelevantChange && this.dataSource) {
-      this.selectionModel.clear(true);
-      this._loadData();
-    }
-  }
-
-  /**
-   * The implementation unsubscribes from the count and paginator evemts.
-   * @inheritdoc
-   * @override
-   */
-  ngOnDestroy() {
-    this.countSubscription.unsubscribe();
-    this.paginatorSubscription.unsubscribe();
+    this.loadData();
   }
 
   /**
@@ -168,18 +201,9 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
 
   /**
    * Loads the appropriate data into the receiving table component.
-   * Passes any user-defined search text to include in query predicates.
-   */
-  protected _loadData() : void {
-    this.loadData(this.toolbars ? this.filter : '');
-  }
-
-  /**
-   * Loads the appropriate data into the receiving table component.
-   * @param filter User-defined search text to include in query predicates.
    * @virtual
    */
-  abstract loadData(filter: string) : void;
+  abstract loadData() : void;
 
   /**
    * Returns the ID of a (possibly undefined) Entity.
@@ -196,14 +220,14 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
    * @return The Person's last name or undefined if no Person was passed or current user is unauthenticated.
    */
   getLastName(person : Person | undefined) : string | undefined {
-    return person && this.climateScienceService.isLoggedIn() ? person.LAST_NAME : undefined;
+    return person && this.api.isLoggedIn() ? person.LAST_NAME : undefined;
   }
 
   /**
    * Reloads the list using current paginator settings.
    */
   reload() : void {
-    this._loadData();
+    this.loadData();
   }
 
 }

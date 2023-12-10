@@ -6,8 +6,8 @@
 
 import { catchError, finalize, of, tap } from 'rxjs';
 import { Statistic } from "../shared/data-model";
-import { ClimateScienceService } from "../shared/climate-science.service";
 import { AbstractDataSource } from "../shared/abstract-data-source";
+import { ListConfig } from '../shared/list-config';
 
 /**
  * A DataSource for fetching Statistics from the back-end REST service.
@@ -18,22 +18,19 @@ export class StatisticsDataSource extends AbstractDataSource<Statistic> {
 
   /**
    * Constructs a new StatisticsDataSource.
-   * @param climateScienceService The injected climate science service.
+   * @param cfg The list configuration to control pagination, filtering and sorting.
    */
-  constructor(climateScienceService: ClimateScienceService) {
-    super(climateScienceService);
+  constructor(cfg : ListConfig) {
+    super(cfg);
   }
 
   /**
    * Loads Statistics from the REST service.
    * @param topic The topic for which metrics are requested
-   * @param pageIndex The 0-based index of the page requested.
-   * @param pageSize The number of items to load.
    */
-  loadStatistics(topic : string, pageIndex = 0, pageSize = 0) {
+  loadStatistics(topic : string) {
       this.loadingSubject.next(true);
-
-      let subscription = this.climateScienceService.findStatistics(topic, pageIndex * pageSize, pageSize)
+      let subscription = this.cfg.api.findStatistics(topic)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),

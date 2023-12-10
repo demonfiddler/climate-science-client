@@ -25,30 +25,30 @@
         <mat-spinner></mat-spinner>
     </div>
 
-    <mat-table [dataSource]="dataSource" style="height: 300px; overflow-y: auto;">
+    <mat-table matSort [dataSource]="dataSource" style="height: 300px; overflow-y: auto;">
 
         <ng-container matColumnDef="TITLE">
-            <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Title"> Title </mat-header-cell>
             <mat-cell *matCellDef="let publication"> {{publication.TITLE}} </mat-cell>
         </ng-container>
 
         <ng-container matColumnDef="JOURNAL">
-            <mat-header-cell *matHeaderCellDef> Journal </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Journal"> Journal </mat-header-cell>
             <mat-cell *matCellDef="let publication"> {{publication.JOURNAL}} </mat-cell>
         </ng-container>
 
         <ng-container matColumnDef="PUBLICATION_TYPE_ID">
-            <mat-header-cell *matHeaderCellDef> Type </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Type"> Type </mat-header-cell>
             <mat-cell *matCellDef="let publication"> {{publication.PUBLICATION_TYPE_ID}} </mat-cell>
         </ng-container>
 
         <ng-container matColumnDef="PUBLICATION_YEAR">
-            <mat-header-cell *matHeaderCellDef> YEAR </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Year"> YEAR </mat-header-cell>
             <mat-cell *matCellDef="let publication"> {{publication.PUBLICATION_YEAR}} </mat-cell>
         </ng-container>
 
         <ng-container matColumnDef="PEER_REVIEWED">
-            <mat-header-cell *matHeaderCellDef> Peer Reviewed </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Peer Reviewed"> Peer Reviewed </mat-header-cell>
             <mat-cell *matCellDef="let publication"> <mat-checkbox disabled [checked]="publication.PEER_REVIEWED == 1"></mat-checkbox> </mat-cell>
         </ng-container>
 

@@ -6,8 +6,8 @@
 
 import { catchError, finalize, of, tap } from 'rxjs';
 import { Quotation } from "../shared/data-model";
-import { ClimateScienceService } from "../shared/climate-science.service";
 import { AbstractDataSource } from "../shared/abstract-data-source";
+import { ListConfig } from '../shared/list-config';
 
 /**
  * A DataSource for fetching Quotations from the back-end REST service.
@@ -18,22 +18,18 @@ export class QuotationDataSource extends AbstractDataSource<Quotation> {
 
   /**
    * Constructs a new QuotationDataSource.
-   * @param climateScienceService The injected climate science service.
+   * @param cfg The list configuration to control pagination, filtering and sorting.
    */
-  constructor(climateScienceService: ClimateScienceService) {
-    super(climateScienceService);
+  constructor(cfg : ListConfig) {
+    super(cfg);
   }
 
   /**
    * Loads Quotations from the REST service.
-   * @param filter User-defined search string.
-   * @param pageIndex The 0-based index of the page requested.
-   * @param pageSize The number of items to load.
    */
-  loadQuotations(filter: string, pageIndex = 0, pageSize = 10) {
+  loadQuotations() {
       this.loadingSubject.next(true);
-
-      let subscription = this.climateScienceService.findQuotations(filter, pageIndex * pageSize, pageSize)
+      let subscription = this.cfg.api.findQuotations(this.cfg.filter, this.cfg.sort, this.cfg.start, this.cfg.count)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),
@@ -49,15 +45,11 @@ export class QuotationDataSource extends AbstractDataSource<Quotation> {
    * Loads Quotations from (or possibly from) the specified Person.
    * @param personId The ID of the specified Person.
    * @param lastName The specified Person's last name.
-   * @param filter User-defined search string.
-   * @param pageIndex The 0-based index of the page requested.
-   * @param pageSize The number of items to load.
    */
-  loadQuotationsByAuthor(personId : number|undefined, lastName : string|undefined, filter: string, pageIndex = 0, pageSize = 10) {
-    this.loadingSubject.next(true);
-
+  loadQuotationsByAuthor(personId : number|undefined, lastName : string|undefined) {
     if (personId) {
-      let subscription = this.climateScienceService.findQuotationsByAuthor(personId, lastName, filter, pageIndex * pageSize, pageSize)
+      this.loadingSubject.next(true);
+      let subscription = this.cfg.api.findQuotationsByAuthor(personId, lastName, this.cfg.filter, this.cfg.sort, this.cfg.start, this.cfg.count)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),

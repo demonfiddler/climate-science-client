@@ -37,6 +37,7 @@ export interface Publication extends Entity {
     TITLE: string;
     AUTHORS: string;
     JOURNAL: string;
+    LOCATION: string;
     PUBLICATION_TYPE_ID: string;
     PUBLICATION_DATE: Date;
     PUBLICATION_YEAR: number;

@@ -6,8 +6,8 @@
 
 import { catchError, finalize, of, tap } from 'rxjs';
 import { Publication } from "../shared/data-model";
-import { ClimateScienceService } from "../shared/climate-science.service";
 import { AbstractDataSource } from "../shared/abstract-data-source";
+import { ListConfig } from '../shared/list-config';
 
 /**
  * A DataSource for fetching Publications from the back-end REST service.
@@ -18,22 +18,18 @@ export class PublicationDataSource extends AbstractDataSource<Publication> {
 
   /**
    * Constructs a new PublicationDataSource.
-   * @param climateScienceService The injected climate science service.
+   * @param cfg The list configuration to control pagination, filtering and sorting.
    */
-  constructor(climateScienceService: ClimateScienceService) {
-    super(climateScienceService);
+  constructor(cfg : ListConfig) {
+    super(cfg);
   }
 
   /**
    * Loads Publications from the REST service.
-   * @param filter User-defined search string.
-   * @param pageIndex The 0-based index of the page requested.
-   * @param pageSize The number of items to load.
    */
-  loadPublications(filter: string, pageIndex = 0, pageSize = 10) {
+  loadPublications() {
       this.loadingSubject.next(true);
-
-      let subscription = this.climateScienceService.findPublications(filter, pageIndex * pageSize, pageSize)
+      let subscription = this.cfg.api.findPublications(this.cfg.filter, this.cfg.sort, this.cfg.start, this.cfg.count)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),
@@ -49,15 +45,11 @@ export class PublicationDataSource extends AbstractDataSource<Publication> {
    * Loads the Publications that were (or may be) authored by the specified Person.
    * @param personId The ID of the specified Person.
    * @param lastName The specified Person's last name, matched against Publication authors.
-   * @param filter User-defined search string.
-   * @param pageIndex The 0-based index of the page requested.
-   * @param pageSize The number of items to load.
    */
-  loadPublicationsByAuthor(personId : number|undefined, lastName : string|undefined, filter: string, pageIndex = 0, pageSize = 10) {
-    this.loadingSubject.next(true);
-
+  loadPublicationsByAuthor(personId : number|undefined, lastName : string|undefined) {
     if (personId) {
-      let subscription = this.climateScienceService.findPublicationsByAuthor(personId, lastName, filter, pageIndex * pageSize, pageSize)
+      this.loadingSubject.next(true);
+      let subscription = this.cfg.api.findPublicationsByAuthor(personId, lastName, this.cfg.filter, this.cfg.sort, this.cfg.start, this.cfg.count)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),

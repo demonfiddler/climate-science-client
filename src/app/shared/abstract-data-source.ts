@@ -4,9 +4,9 @@
  * Licensed under the GNU Affero General Public License v.3 https://www.gnu.org/licenses/agpl-3.0.html
  */
 
-import {CollectionViewer, DataSource} from "@angular/cdk/collections";
+import {CollectionViewer, DataSource} from '@angular/cdk/collections';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { ClimateScienceService } from "./climate-science.service";
+import { ListConfig } from './list-config';
 
 /**
  * An abstract DataSource base class for interacting with the back-end REST service.
@@ -14,6 +14,7 @@ import { ClimateScienceService } from "./climate-science.service";
  */
 export abstract class AbstractDataSource<T> implements DataSource<T> {
 
+  protected cfg : ListConfig;
   protected countSubject = new BehaviorSubject<number>(0);
   protected contentSubject = new BehaviorSubject<T[]>([]);
   protected loadingSubject = new BehaviorSubject<boolean>(false);
@@ -22,9 +23,11 @@ export abstract class AbstractDataSource<T> implements DataSource<T> {
 
   /**
    * Constructs a new AbstractDataSource.
-   * @param climateScienceService The injected climate science service.
+   * @param cfg The list configuration to control pagination, filtering and sorting.
    */
-  constructor(protected climateScienceService: ClimateScienceService) {}
+  constructor(cfg : ListConfig) {
+    this.cfg = cfg;
+  }
 
   /** @override */
   connect(collectionViewer: CollectionViewer): Observable<T[]> {

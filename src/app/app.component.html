@@ -6,14 +6,14 @@
 <div class="toolbar" role="banner">
   <span>
     &nbsp;
-    <a href="https://campaign-resources.org/" target="_blank" title="Main Campaign Resources website"><img src="assets/images/campaign-resources-favicon-48.png"></a>&nbsp;
+    <a href="https://campaign-resources.org/" target="_blank" title="Campaign Resources home page"><img src="assets/images/campaign-resources-favicon-48.png"></a>&nbsp;
     <a href="https://campaign-resources.org/climate.html" target="_blank" style="color: white" title="Climate science web page with leaflet, etc.">Climate Page</a>&nbsp;
   </span>
   <div class="spacer"></div>
   <span>{{title}}</span>
   <div class="spacer"></div>
   <a href="https://campaign-resources.org/climate-science-client-instructions.html" target="_blank" style="color: white" title="Instructions for using the web app">Instructions</a>&nbsp;
-  <mat-icon #menuTrigger [matMenuTriggerFor]="account" aria-hidden="false" aria-label="Current Account" fontIcon="account_circle" style="font-size: 1.6rem"></mat-icon>
+  <mat-icon #menuTrigger [matMenuTriggerFor]="account" aria-hidden="false" aria-label="Current Account" fontIcon="account_circle" style="font-size: 1.6rem" title="Adminstrative use only"></mat-icon>
   <mat-menu #account="matMenu">
     <button mat-menu-item [disabled]="authService.isLoggedIn()" (click)="openLoginDialog()">Login</button>
     <button mat-menu-item [disabled]="authService.isLoggedOut()" (click)="authService.logout()">Logout</button>

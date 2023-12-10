@@ -6,8 +6,8 @@
 
 import { catchError, finalize, of, tap } from 'rxjs';
 import { Declaration } from "../shared/data-model";
-import { ClimateScienceService } from "../shared/climate-science.service";
 import { AbstractDataSource } from "../shared/abstract-data-source";
+import { ListConfig } from '../shared/list-config';
 
 /**
  * A DataSource for fetching Declarations from the back-end REST service.
@@ -18,22 +18,18 @@ export class DeclarationDataSource extends AbstractDataSource<Declaration> {
 
   /**
    * Constructs a new DeclarationDataSource.
-   * @param climateScienceService The injected climate science service.
+   * @param cfg The list configuration to control pagination, filtering and sorting.
    */
-  constructor(climateScienceService: ClimateScienceService) {
-    super(climateScienceService);
+  constructor(cfg : ListConfig) {
+    super(cfg);
   }
 
   /**
    * Loads Declarations from the REST service.
-   * @param filter User-defined search string.
-   * @param pageIndex The 0-based index of the page requested.
-   * @param pageSize The number of items to load.
    */
-  loadDeclarations(filter: string, pageIndex : number, pageSize : number) {
+  loadDeclarations() {
       this.loadingSubject.next(true);
-
-      let subscription = this.climateScienceService.findDeclarations(filter, pageIndex * pageSize, pageSize)
+      let subscription = this.cfg.api.findDeclarations(this.cfg.filter, this.cfg.sort, this.cfg.start, this.cfg.count)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),
@@ -49,15 +45,11 @@ export class DeclarationDataSource extends AbstractDataSource<Declaration> {
    * Loads Declarations signed by the specified Person.
    * @param personId The ID of the person.
    * @param lastName The person's last name.
-   * @param filter User-defined search string.
-   * @param pageIndex The 0-based index of the page requested.
-   * @param pageSize The number of items to load.
    */
-  loadDeclarationsBySignatory(personId : number|undefined, lastName : string|undefined, filter: string, pageIndex : number, pageSize : number) {
-    this.loadingSubject.next(true);
-
+  loadDeclarationsBySignatory(personId : number|undefined, lastName : string|undefined) {
     if (personId) {
-      let subscription = this.climateScienceService.findDeclarationsBySignatory(personId, lastName, filter, pageIndex * pageSize, pageSize)
+      this.loadingSubject.next(true);
+      let subscription = this.cfg.api.findDeclarationsBySignatory(personId, lastName, this.cfg.filter, this.cfg.sort, this.cfg.start, this.cfg.count)
         .pipe(
           // TODO: use MessagesService to show a closeable error popup.
           catchError(() => of([])),
