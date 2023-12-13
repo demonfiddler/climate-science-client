@@ -29,17 +29,7 @@ export class StatisticsDataSource extends AbstractDataSource<Statistic> {
    * @param topic The topic for which metrics are requested
    */
   loadStatistics(topic : string) {
-      this.loadingSubject.next(true);
-      let subscription = this.cfg.api.findStatistics(topic)
-        .pipe(
-          // TODO: use MessagesService to show a closeable error popup.
-          catchError(() => of([])),
-          // The weird instanceof check is to circumvent compiler error TS2339 Property 'count' does not exist on type 'never[]'.
-          tap(result => this.countSubject.next(result instanceof Array ? result.length : result.count)),
-          finalize(() => {this.loadingSubject.next(false); subscription.unsubscribe()})
-        )
-        // Ditto re. instanceof and error TS2339.
-        .subscribe(result => this.contentSubject.next(result instanceof Array ? [] : result.records));
+    this.callApi(this.cfg.api.findStatistics, true, topic);
   }
 
 }

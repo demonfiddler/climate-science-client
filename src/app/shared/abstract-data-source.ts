@@ -4,9 +4,12 @@
  * Licensed under the GNU Affero General Public License v.3 https://www.gnu.org/licenses/agpl-3.0.html
  */
 
-import {CollectionViewer, DataSource} from '@angular/cdk/collections';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { CollectionViewer, DataSource } from '@angular/cdk/collections';
+import { Observable, BehaviorSubject, catchError, finalize, of, tap, Subscription } from 'rxjs';
+
 import { ListConfig } from './list-config';
+import { ClimateScienceService } from "./climate-science.service";
+import { ResultSet } from './data-model';
 
 /**
  * An abstract DataSource base class for interacting with the back-end REST service.
@@ -39,6 +42,49 @@ export abstract class AbstractDataSource<T> implements DataSource<T> {
     this.countSubject.complete();
     this.contentSubject.complete();
     this.loadingSubject.complete();
+  }
+
+  private complete(subscription : Subscription) {
+    this.loadingSubject.next(false);
+    subscription.unsubscribe();
+  }
+
+  /**
+   * Invokes a REST API method, managing the 'busy' state.
+   * @param method The API method to invoke.
+   * @param args The arguments to pass to the API.
+   */
+  callApi(method: (...a : any[]) => Observable<any>, multi : boolean, ...args: any[]) {
+    this.loadingSubject.next(true);
+    let subscription = method.apply<ClimateScienceService, any[], Observable<ResultSet<T>>>(this.cfg.api, args)
+      .subscribe(
+        {
+          next: (result) => {
+            let count : number;
+            let records : T[];
+            if (multi) {
+              let rs = result as ResultSet<T>;
+              count = rs.count;
+              records = rs.records;
+            } else {
+              let t = result as T;
+              count = result ? 1 : 0;
+              records = [t];
+            }
+            this.countSubject.next(count);
+            this.contentSubject.next(records);
+          },
+          error: (err) => {
+            this.cfg.onError(err);
+            this.complete(subscription);
+          },
+          complete: () => {
+            // this.loadingSubject.next(false);
+            // subscription.unsubscribe();
+            this.complete(subscription);
+          }
+        } 
+      );
   }
 
   /**

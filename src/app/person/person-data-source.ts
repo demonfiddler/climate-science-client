@@ -4,7 +4,6 @@
  * Licensed under the GNU Affero General Public License v.3 https://www.gnu.org/licenses/agpl-3.0.html
  */
 
-import { catchError, finalize, of, tap } from 'rxjs';
 import { Person } from "../shared/data-model";
 import { AbstractDataSource } from "../shared/abstract-data-source";
 import { ListConfig } from '../shared/list-config';
@@ -30,16 +29,7 @@ export class PersonDataSource extends AbstractDataSource<Person> {
    */
   loadPerson(personId?: number) {
     if (personId) {
-      this.loadingSubject.next(true);
-      let subscription = this.cfg.api.getPersonById(personId)
-        .pipe(
-          // TODO: use MessagesService to show a closeable error popup.
-          catchError(() => of([])),
-          tap(result => this.countSubject.next(result ? 1 : 0)),
-          finalize(() => {this.loadingSubject.next(false); subscription.unsubscribe()})
-        )
-        // Ditto re. instanceof and error TS2339.
-        .subscribe(result => this.contentSubject.next(result instanceof Array ? [] : [result]));
+      this.callApi(this.cfg.api.getPersonById, false, personId);
     } else {
       this.unload();
     }
@@ -49,17 +39,7 @@ export class PersonDataSource extends AbstractDataSource<Person> {
    * Loads Persons from the REST service.
    */
   loadPersons() {
-      this.loadingSubject.next(true);
-      let subscription = this.cfg.api.findPersons(this.cfg.filter, this.cfg.sort, this.cfg.start, this.cfg.count)
-        .pipe(
-          // TODO: use MessagesService to show a closeable error popup.
-          catchError(() => of([])),
-          // The weird instanceof check is to circumvent compiler error TS2339 Property 'count' does not exist on type 'never[]'.
-          tap(result => this.countSubject.next(result instanceof Array ? result.length : result.count)),
-          finalize(() => {this.loadingSubject.next(false); subscription.unsubscribe()})
-        )
-        // Ditto re. instanceof and error TS2339.
-        .subscribe(result => this.contentSubject.next(result instanceof Array ? [] : result.records));
+    this.callApi(this.cfg.api.findPersons, true, this.cfg.filter, this.cfg.sort, this.cfg.start, this.cfg.count);
   }
 
   /**
@@ -68,17 +48,7 @@ export class PersonDataSource extends AbstractDataSource<Person> {
    */
   loadPersonsByPublication(publicationId : number|undefined) {
     if (publicationId) {
-      this.loadingSubject.next(true);
-      let subscription = this.cfg.api.findPersonsByPublication(publicationId, this.cfg.filter, this.cfg.sort, this.cfg.start, this.cfg.count)
-        .pipe(
-          // TODO: use MessagesService to show a closeable error popup.
-          catchError(() => of([])),
-          // The weird instanceof check is to circumvent compiler error TS2339 Property 'count' does not exist on type 'never[]'.
-          tap(result => this.countSubject.next(result instanceof Array ? result.length : result.count)),
-          finalize(() => {this.loadingSubject.next(false); subscription.unsubscribe()})
-        )
-        // Ditto re. instanceof and error TS2339.
-        .subscribe(result => this.contentSubject.next(result instanceof Array ? [] : result.records));
+      this.callApi(this.cfg.api.findPersonsByPublication, true, publicationId, this.cfg.filter, this.cfg.sort, this.cfg.start, this.cfg.count);
     } else {
       this.unload();
     }
@@ -90,17 +60,7 @@ export class PersonDataSource extends AbstractDataSource<Person> {
    */
   loadPersonsByDeclaration(declarationId : number|undefined) {
     if (declarationId) {
-      this.loadingSubject.next(true);
-      let subscription = this.cfg.api.findPersonsByDeclaration(declarationId, this.cfg.filter, this.cfg.sort, this.cfg.start, this.cfg.count)
-        .pipe(
-          // TODO: use MessagesService to show a closeable error popup.
-          catchError(() => of([])),
-          // The weird instanceof check is to circumvent compiler error TS2339 Property 'count' does not exist on type 'never[]'.
-          tap(result => this.countSubject.next(result instanceof Array ? result.length : result.count)),
-          finalize(() => {this.loadingSubject.next(false); subscription.unsubscribe()})
-          )
-        // Ditto re. instanceof and error TS2339.
-        .subscribe(result => this.contentSubject.next(result instanceof Array ? [] : result.records));
+      this.callApi(this.cfg.api.findPersonsByDeclaration, true, declarationId, this.cfg.filter, this.cfg.sort, this.cfg.start, this.cfg.count);
     } else {
       this.unload();
     }

@@ -8,6 +8,7 @@ import { Component, Input, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -58,10 +59,11 @@ export class PersonsComponent extends AbstractTableComponent<Person> {
 
   /**
    * Constructs a new PersonsComponent.
+   * @param snackBar The injected snack bar service.
    * @param api The injected climate science service.
    */
-  constructor(public override api: ClimateScienceService) {
-    super(api);
+  constructor(protected override snackBar : MatSnackBar, public override api: ClimateScienceService) {
+    super(snackBar, api);
     this.displayedColumns = ['TITLE', 'FIRST_NAME', 'LAST_NAME', 'COUNTRY', 'RATING', 'PUBLISHED'];
   }
 

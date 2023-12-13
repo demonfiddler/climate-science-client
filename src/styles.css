@@ -12,3 +12,16 @@ html, body {
     --mat-toolbar-standard-height: 80px;
 }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.mat-mdc-snack-bar-container {
+    --mat-mdc-snack-bar-button-color: #ffffff;
+    --mdc-snackbar-supporting-text-color: #ffffff;
+}
+
+.mat-mdc-snack-bar-container.app-notification-error {
+    --mdc-snackbar-container-color: #f23a2f;
+}
+
+.mat-mdc-snack-bar-container.app-notification-success {
+    --mdc-snackbar-container-color: #43a446;
+}

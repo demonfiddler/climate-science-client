@@ -8,6 +8,7 @@ import { Component, Input, Output, EventEmitter, OnInit, AfterViewInit, OnChange
 import { MatInput } from '@angular/material/input';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Subject, Subscription, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 
@@ -56,7 +57,7 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
    * Constructs a new AbstractTableComponent. 
    * @param api The injected climate science service.
    */
-  constructor(public api: ClimateScienceService) {
+  constructor(protected snackBar: MatSnackBar, public api: ClimateScienceService) {
     // TODO: See if there is any way to use the SelectionModel directly as the event source.
     this.selectionModel.changed.subscribe(() => this.selectionChange.emit(this.selection));
   }  
@@ -147,6 +148,14 @@ export abstract class AbstractTableComponent<T> implements OnInit, AfterViewInit
    */
   get selection() : T | undefined {
     return this.selectionModel.isEmpty() ? undefined : this.selectionModel.selected[0];
+  }
+
+  /**
+   * Reports an API error.
+   * @param err The error message/object.
+   */
+  onError(err : any) : void {
+    this.snackBar.open(`An error occurred: ${err.message}`, undefined, {duration: 10000, verticalPosition: 'top', panelClass: 'app-notification-error'});
   }
 
   /**

@@ -4,10 +4,11 @@
  * Licensed under the GNU Affero General Public License v.3 https://www.gnu.org/licenses/agpl-3.0.html
  */
 
-import { Component, Input, SimpleChanges } from '@angular/core';
+import { Component, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -49,10 +50,11 @@ export class StatisticsComponent extends AbstractTableComponent<Statistic> {
 
   /**
    * Constructs a new StatisticsComponent.
+   * @param snackBar The injected snack bar service.
    * @param api The injected climate science service.
    */
-  constructor(public override api: ClimateScienceService) {
-    super(api);
+  constructor(protected override snackBar : MatSnackBar, public override api: ClimateScienceService) {
+    super(snackBar, api);
     this.displayedColumns = ['CATEGORY', 'COUNT', 'DESCRIPTION'];
   }
 

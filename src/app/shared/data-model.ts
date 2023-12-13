@@ -89,7 +89,7 @@ export interface Statistic {
 /**
  * Describes the form of a paginated result set returned by the REST service.
  */
-export interface ResultSet<Type> {
+export interface ResultSet<T> {
     count: number;
-    records: Type[];
+    records: T[];
 }

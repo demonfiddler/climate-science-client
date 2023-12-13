@@ -5,11 +5,13 @@ import { ClimateScienceService } from "./climate-science.service";
  */
 export interface ListConfig {
     /** The REST API. */
-    api : ClimateScienceService
+    api : ClimateScienceService;
+    /** API error handler. */
+    onError : (err : any) => void;
     /** The filter string. */
-    filter: string;
+    filter : string;
     /** The sort specification, format: 'COLUMN {ASC|DESC}'. */
-    sort: string;
+    sort : string;
     /** The start index. */
     start : number;
     /** The number of items to retrieve. */

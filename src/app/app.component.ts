@@ -106,6 +106,6 @@ export class AppComponent {
   }
 
   private openSnackBar(message: string, action?: string, duration?: number) : void {
-    this.snackBar.open(message, action, duration ? {duration: duration * 1000, verticalPosition: 'top'} : undefined);
+    this.snackBar.open(message, action, duration ? {duration: duration * 1000, verticalPosition: 'top', panelClass: 'app-notification-success'} : undefined);
   }
 }
