@@ -8,7 +8,7 @@ This project was generated with [Angular CLI](/angular/angular-cli) version 16.2
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
 ## Production server
-Navigate to `https://campaign-resources.org/climate-science-client/`.
+Navigate to `https://www.campaign-resources.org/climate-science-client/`.
 
 ## Code scaffolding
 
